@@ -140,6 +140,23 @@ const App = () => {
     setGameState("guessing");
   };
 
+  // Set up dynamic viewport height for mobile browsers
+  useEffect(() => {
+    const setViewportHeight = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+
+    setViewportHeight();
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', setViewportHeight);
+
+    return () => {
+      window.removeEventListener('resize', setViewportHeight);
+      window.removeEventListener('orientationchange', setViewportHeight);
+    };
+  }, []);
+
   useEffect(() => {
     console.log("🔍 CHECKING ENVIRONMENT VARIABLES");
     console.log("process.env:", process.env);
@@ -455,7 +472,7 @@ const App = () => {
             <div className="w-64 p-2 flex flex-col space-y-4 h-full justify-between">
               <div className="p-4">
                 <img
-                  src="logo_leiden.jpg"
+                  src="/logo_leiden.jpg"
                   alt="Leiden Logo"
                   className="w-full rounded-lg "
                 />
@@ -482,12 +499,12 @@ const App = () => {
           </div>
 
           {/* Mobile Layout */}
-          <div className="md:hidden h-screen flex flex-col overflow-hidden">
+          <div className="md:hidden flex flex-col overflow-hidden" style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
             {/* Fixed Header - Logo and Leaderboard on top of Street View */}
             <div className="fixed top-0 left-0 right-0 flex justify-between items-center px-2 py-1 z-20">
               <div className="bg-white rounded-lg px-3 py-1 shadow-lg">
                 <img
-                  src="logo_leiden.jpg"
+                  src="/logo_leiden.jpg"
                   alt="Leiden Logo"
                   className="w-14 h-10 rounded-lg object-contain"
                 />
@@ -501,7 +518,7 @@ const App = () => {
               </button>
             </div>
 
-            <div className="h-[40%]">
+            <div style={{ height: 'calc(var(--vh, 1vh) * 40)' }}>
               {mapsLoaded && currentLocation && (
                 <StreetView
                   currentLocation={currentLocation}
@@ -515,7 +532,7 @@ const App = () => {
             </div>
 
             {/* Map - 40% height, never changes */}
-            <div className="h-[40%]">
+            <div style={{ height: 'calc(var(--vh, 1vh) * 40)' }}>
               {mapsLoaded && currentLocation && (
                 <GuessMap
                   gameState={gameState}

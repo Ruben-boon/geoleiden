@@ -24,15 +24,20 @@
 
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
+    /* Use dynamic viewport height that accounts for browser UI */
+    :root {
+        --vh: 1vh;
+    }
+    
     .street-view-container {
-        height: 40vh !important;
-        max-height: 40vh !important;
+        height: calc(var(--vh, 1vh) * 40) !important;
+        max-height: calc(var(--vh, 1vh) * 40) !important;
         overflow: hidden !important;
         box-shadow: none !important;
     }
     .map-container {
-        height: 40vh !important;
-        max-height: 40vh !important;
+        height: calc(var(--vh, 1vh) * 40) !important;
+        max-height: calc(var(--vh, 1vh) * 40) !important;
         overflow: hidden !important;
         box-shadow: none !important;
     }
