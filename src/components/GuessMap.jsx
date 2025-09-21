@@ -26,7 +26,7 @@ const GuessMap = ({
                     mapTypeControl: false,
                     fullscreenControl: false,
                     zoomControl: true,
-                    gestureHandling: 'cooperative',
+                    gestureHandling: 'greedy',
                     minZoom: 11,
                     maxZoom: 20, // Increased max zoom for better precision
                     clickableIcons: false,
