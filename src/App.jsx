@@ -12,6 +12,7 @@ import HighScores from "./components/HighScores";
 import HighScoresDisplay from "./components/HighScoresDisplay";
 import GameControls from "./components/GameControls";
 import SetupModal from "./components/SetupModal";
+import logoLeiden from "../public/logo_leiden.jpg";
 
 const App = () => {
   console.log("🚀 APP COMPONENT INITIALIZED");
@@ -472,7 +473,7 @@ const App = () => {
             <div className="w-64 p-2 flex flex-col space-y-4 h-full justify-between">
               <div className="p-4">
                 <img
-                  src="/logo_leiden.jpg"
+                  src={logoLeiden}
                   alt="Leiden Logo"
                   className="w-full rounded-lg "
                 />
@@ -504,7 +505,7 @@ const App = () => {
             <div className="fixed top-0 left-0 right-0 flex justify-between items-center px-2 py-1 z-20">
               <div className="bg-white rounded-lg px-3 py-1 shadow-lg">
                 <img
-                  src="/logo_leiden.jpg"
+                  src={logoLeiden}
                   alt="Leiden Logo"
                   className="w-14 h-10 rounded-lg object-contain"
                 />
