@@ -14,6 +14,7 @@ import GameControls from "./components/GameControls";
 import SetupModal from "./components/SetupModal";
 
 const App = () => {
+  console.log("🚀 APP COMPONENT INITIALIZED");
   const [apiKey, setApiKey] = useState("");
   const [gameState, setGameState] = useState("loading");
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -36,28 +37,38 @@ const App = () => {
   const [timerActive, setTimerActive] = useState(false);
 
   useEffect(() => {
-    if (!apiKey) return;
+    console.log("🗺️ MAPS LOADING EFFECT TRIGGERED");
+    console.log("API Key available:", !!apiKey);
+    console.log("API Key value:", apiKey);
+    
+    if (!apiKey) {
+      console.log("❌ NO API KEY, SKIPPING MAPS LOADING");
+      return;
+    }
 
+    console.log("🧹 REMOVING EXISTING GOOGLE MAPS SCRIPTS");
     const existingScripts = document.querySelectorAll(
       `script[src*="maps.googleapis.com"]`
     );
+    console.log("Found existing scripts:", existingScripts.length);
     existingScripts.forEach((script) => script.remove());
 
+    console.log("📜 CREATING NEW GOOGLE MAPS SCRIPT");
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&libraries=geometry`;
     script.async = true;
     script.defer = true;
 
     script.onload = () => {
-      console.log("Google Maps API loaded successfully");
+      console.log("✅ GOOGLE MAPS API LOADED SUCCESSFULLY");
       setGameState("loading");
       setTimeout(() => {
         if (window.google && window.google.maps) {
-          console.log("Google Maps is ready");
+          console.log("🗺️ GOOGLE MAPS IS READY");
           setMapsLoaded(true);
           startNewRound();
         } else {
-          console.error("Google Maps not properly initialized");
+          console.error("❌ GOOGLE MAPS NOT PROPERLY INITIALIZED");
           alert(
             "Google Maps failed to initialize properly. Please check your API key and try again."
           );
@@ -68,7 +79,7 @@ const App = () => {
     };
 
     script.onerror = () => {
-      console.error("Failed to load Google Maps API");
+      console.error("❌ FAILED TO LOAD GOOGLE MAPS API");
       alert(
         "Failed to load Google Maps API. Please check your API key and internet connection."
       );
@@ -130,12 +141,21 @@ const App = () => {
   };
 
   useEffect(() => {
-    const envApiKey = process.env.GOOGLEAPIKEY;
+    console.log("🔍 CHECKING ENVIRONMENT VARIABLES");
+    console.log("process.env:", process.env);
+    console.log("process.env.GOOGLEAPIKEY:", process.env.GOOGLEAPIKEY);
+    console.log("process.env.REACT_APP_GOOGLE_MAPS_API_KEY:", process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
+    
+    const envApiKey = process.env.GOOGLEAPIKEY || process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+    console.log("🔑 RESOLVED API KEY:", envApiKey);
+    
     if (envApiKey && envApiKey !== "your_actual_api_key_here" && envApiKey !== "your_google_maps_api_key_here") {
+      console.log("✅ VALID API KEY FOUND, SETTING UP MAPS");
       setApiKey(envApiKey);
       setMapsLoaded(false);
       setGameState("loading"); // Changed from "guessing" to "loading" to trigger the maps loading
     } else {
+      console.log("❌ NO VALID API KEY FOUND, SHOWING SETUP MODAL");
       // If no API key from environment, show setup modal
       setGameState("setup");
     }
@@ -322,6 +342,14 @@ const App = () => {
       </div>
     );
   }
+
+  console.log("🎨 RENDERING APP COMPONENT");
+  console.log("Current game state:", gameState);
+  console.log("API Key available:", !!apiKey);
+  console.log("Maps loaded:", mapsLoaded);
+  console.log("Current location:", currentLocation);
+  console.log("Show name entry:", showNameEntry);
+  console.log("Show high scores:", showHighScores);
 
   return (
     <div className="min-h-screen ">
