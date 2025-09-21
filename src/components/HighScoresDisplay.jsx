@@ -29,7 +29,7 @@ const HighScoresDisplay = ({ onShowFullHighScores }) => {
                     onClick={onShowFullHighScores}
                     className="text-sm text-blue-600 hover:text-blue-800"
                 >
-                    Bekijk Alles
+                    Leaderboard
                 </button>
             </div>
             

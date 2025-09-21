@@ -73,6 +73,9 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                                 visible: true,
                                 imageDateControl: false,
                                 showRoadLabels: false,
+                                // Prevent automatic panorama switching
+                                disableDoubleClickZoom: true,
+                                gestureHandling: 'none',
                                 options: {
                                     addressControl: false,
                                     fullscreenControl: false,
@@ -126,7 +129,10 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                                 disableDefaultUI: true,
                                 visible: true,
                                 imageDateControl: false,
-                                showRoadLabels: false
+                                showRoadLabels: false,
+                                // Prevent automatic panorama switching
+                                disableDoubleClickZoom: true,
+                                gestureHandling: 'none'
                             }
                         );
                         addStreetViewListeners();
@@ -210,6 +216,25 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                         
                         if (!isVisible) {
                             console.warn('⚠️ Street View is not visible - may need to find nearby location');
+                        }
+                    });
+                    
+                    // Prevent panorama changes - lock to initial panorama
+                    let initialPanoId = null;
+                    google.maps.event.addListener(panoramaRef.current, 'pano_changed', () => {
+                        const currentPanoId = panoramaRef.current.getPano();
+                        
+                        if (!initialPanoId) {
+                            // Set the initial panorama ID
+                            initialPanoId = currentPanoId;
+                            console.log('🔒 LOCKED TO INITIAL PANORAMA:', initialPanoId);
+                        } else if (currentPanoId !== initialPanoId) {
+                            // If panorama changed, switch back to initial
+                            console.log('⚠️ Panorama changed, switching back to initial:', {
+                                from: currentPanoId,
+                                to: initialPanoId
+                            });
+                            panoramaRef.current.setPano(initialPanoId);
                         }
                     });
                 }

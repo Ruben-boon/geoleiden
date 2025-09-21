@@ -9,13 +9,38 @@ class HighScoresService {
 
     initFirebase() {
         try {
+            // Get environment variables directly
+            const apiKey = process.env.REACT_APP_FIREBASE_API_KEY;
+            const authDomain = process.env.REACT_APP_FIREBASE_AUTH_DOMAIN;
+            const projectId = process.env.REACT_APP_FIREBASE_PROJECT_ID;
+            const storageBucket = process.env.REACT_APP_FIREBASE_STORAGE_BUCKET;
+            const messagingSenderId = process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID;
+            const appId = process.env.REACT_APP_FIREBASE_APP_ID;
+
+            console.log('=== FIREBASE INIT DEBUG ===');
+            console.log('API Key:', apiKey);
+            console.log('Auth Domain:', authDomain);
+            console.log('Project ID:', projectId);
+            console.log('Storage Bucket:', storageBucket);
+            console.log('Messaging Sender ID:', messagingSenderId);
+            console.log('App ID:', appId);
+
+            // Check if any variables are missing
+            if (!apiKey || !authDomain || !projectId || !storageBucket || !messagingSenderId || !appId) {
+                console.warn('Missing Firebase environment variables');
+                console.warn('Firebase will not be initialized. High scores will be stored locally only.');
+                this.initialized = false;
+                return;
+            }
+
+            // All variables are present, proceed with Firebase initialization
             const firebaseConfig = {
-                apiKey: "AIzaSyCih5-dFini_76IXvIZJAkY7KbLH4qgpZw",
-                authDomain: "placechase-18b9d.firebaseapp.com",
-                projectId: "placechase-18b9d",
-                storageBucket: "placechase-18b9d.firebasestorage.app",
-                messagingSenderId: "508531196397",
-                appId: "1:508531196397:web:f7a551973298d48c7de7e4"
+                apiKey: apiKey,
+                authDomain: authDomain,
+                projectId: projectId,
+                storageBucket: storageBucket,
+                messagingSenderId: messagingSenderId,
+                appId: appId
             };
 
             if (!firebase.apps.length) {
