@@ -17,7 +17,6 @@ const GuessMap = ({
 
         if (!mapInstanceRef.current) {
             try {
-                console.log('Initializing map...');
                 mapInstanceRef.current = new google.maps.Map(mapRef.current, {
                     center: { lat: 52.1601, lng: 4.4970 },
                     zoom: 13,
@@ -49,7 +48,6 @@ const GuessMap = ({
                         }
                     ]
                 });
-                console.log('Map initialized successfully');
             } catch (error) {
                 console.error('Error initializing map:', error);
                 return;
@@ -68,7 +66,6 @@ const GuessMap = ({
                     const position = event.latLng;
                     if (position) {
                         const guessCoords = { lat: position.lat(), lng: position.lng() };
-                        console.log('🎯 GUESS MADE:', {
                             lat: guessCoords.lat,
                             lng: guessCoords.lng,
                             latFormatted: guessCoords.lat.toFixed(6),
@@ -112,7 +109,6 @@ const GuessMap = ({
     useEffect(() => {
         if (gameState === 'result' && currentLocation && guessLocation && mapInstanceRef.current && window.google) {
             try {
-                console.log('📍 RESULTS COMPARISON:', {
                     actualLocation: {
                         lat: currentLocation.lat,
                         lng: currentLocation.lng,

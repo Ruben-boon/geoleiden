@@ -17,13 +17,6 @@ class HighScoresService {
             const messagingSenderId = process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID;
             const appId = process.env.REACT_APP_FIREBASE_APP_ID;
 
-            console.log('=== FIREBASE INIT DEBUG ===');
-            console.log('API Key:', apiKey);
-            console.log('Auth Domain:', authDomain);
-            console.log('Project ID:', projectId);
-            console.log('Storage Bucket:', storageBucket);
-            console.log('Messaging Sender ID:', messagingSenderId);
-            console.log('App ID:', appId);
 
             // Check if any variables are missing
             if (!apiKey || !authDomain || !projectId || !storageBucket || !messagingSenderId || !appId) {
@@ -49,7 +42,6 @@ class HighScoresService {
             
             this.db = firebase.firestore();
             this.initialized = true;
-            console.log('Firebase initialized successfully');
         } catch (error) {
             console.error('Error initializing Firebase:', error);
             this.initialized = false;

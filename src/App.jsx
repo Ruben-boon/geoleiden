@@ -15,7 +15,6 @@ import SetupModal from "./components/SetupModal";
 import logoLeiden from "../public/logo_leiden.jpg";
 
 const App = () => {
-  console.log("🚀 APP COMPONENT INITIALIZED");
   const [apiKey, setApiKey] = useState("");
   const [gameState, setGameState] = useState("loading");
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -38,34 +37,24 @@ const App = () => {
   const [timerActive, setTimerActive] = useState(false);
 
   useEffect(() => {
-    console.log("🗺️ MAPS LOADING EFFECT TRIGGERED");
-    console.log("API Key available:", !!apiKey);
-    console.log("API Key value:", apiKey);
     
     if (!apiKey) {
-      console.log("❌ NO API KEY, SKIPPING MAPS LOADING");
       return;
     }
 
-    console.log("🧹 REMOVING EXISTING GOOGLE MAPS SCRIPTS");
     const existingScripts = document.querySelectorAll(
       `script[src*="maps.googleapis.com"]`
     );
-    console.log("Found existing scripts:", existingScripts.length);
     existingScripts.forEach((script) => script.remove());
-
-    console.log("📜 CREATING NEW GOOGLE MAPS SCRIPT");
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&libraries=geometry`;
     script.async = true;
     script.defer = true;
 
     script.onload = () => {
-      console.log("✅ GOOGLE MAPS API LOADED SUCCESSFULLY");
       setGameState("loading");
       setTimeout(() => {
         if (window.google && window.google.maps) {
-          console.log("🗺️ GOOGLE MAPS IS READY");
           setMapsLoaded(true);
           startNewRound();
         } else {
@@ -159,13 +148,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    console.log("🔍 CHECKING ENVIRONMENT VARIABLES");
-    console.log("process.env:", process.env);
-    console.log("process.env.GOOGLEAPIKEY:", process.env.GOOGLEAPIKEY);
-    console.log("process.env.REACT_APP_GOOGLE_MAPS_API_KEY:", process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
-    
     const envApiKey = process.env.GOOGLEAPIKEY || process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-    console.log("🔑 RESOLVED API KEY:", envApiKey);
     
     // Check if API key exists and is not a placeholder
     const isValidApiKey = envApiKey && 
@@ -176,29 +159,16 @@ const App = () => {
       envApiKey.length > 10; // Basic validation for API key length
     
     if (isValidApiKey) {
-      console.log("✅ VALID API KEY FOUND, SETTING UP MAPS");
       setApiKey(envApiKey);
       setMapsLoaded(false);
       setGameState("loading");
     } else {
-      console.log("❌ NO VALID API KEY FOUND");
-      console.log("❌ API Key value:", envApiKey);
-      console.log("❌ API Key type:", typeof envApiKey);
-      console.log("❌ API Key length:", envApiKey ? envApiKey.length : 0);
-      console.log("❌ SHOWING SETUP MODAL");
       setGameState("setup");
     }
   }, []);
 
   const selectRandomLocation = () => {
     const randomLocation = generateRandomLeidenLocation();
-    console.log("🎲 NEW LOCATION GENERATED:", {
-      lat: randomLocation.lat,
-      lng: randomLocation.lng,
-      latFormatted: randomLocation.lat.toFixed(6),
-      lngFormatted: randomLocation.lng.toFixed(6),
-      name: randomLocation.name,
-    });
     setUsedLocations((prev) => [...prev, randomLocation]);
     return randomLocation;
   };
@@ -241,7 +211,6 @@ const App = () => {
 
     const calculatedScore = calculateScore(calculatedDistance);
 
-    console.log("📏 DISTANCE CALCULATION:", {
       actualLocation: {
         lat: actualLocation.lat,
         lng: actualLocation.lng,
@@ -313,7 +282,6 @@ const App = () => {
 
     setTimeout(() => {
       if (window.google && window.google.maps) {
-        console.log("Google Maps is ready for new game");
         setMapsLoaded(true);
         startNewRound();
       } else {
@@ -372,18 +340,9 @@ const App = () => {
     );
   }
 
-  console.log("🎨 RENDERING APP COMPONENT");
-  console.log("Current game state:", gameState);
-  console.log("API Key available:", !!apiKey);
-  console.log("API Key value:", apiKey ? `${apiKey.substring(0, 10)}...` : "undefined");
-  console.log("Maps loaded:", mapsLoaded);
-  console.log("Current location:", currentLocation);
-  console.log("Show name entry:", showNameEntry);
-  console.log("Show high scores:", showHighScores);
   
   // Add error boundary for unexpected states
   if (gameState === "loading" && !apiKey) {
-    console.log("⚠️ LOADING STATE WITHOUT API KEY - FALLING BACK TO SETUP");
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4 text-center">

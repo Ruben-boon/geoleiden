@@ -17,7 +17,6 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
 
         setTimeout(() => {
             try {
-                console.log('🏠 STREET VIEW INITIALIZATION:', {
                     requestedPosition: currentLocation,
                     lat: currentLocation.lat,
                     lng: currentLocation.lng
@@ -33,7 +32,6 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                 
                 streetViewService.getPanorama(request, (data, status) => {
                     if (status === 'OK' && data) {
-                        console.log('🎯 FOUND STREET VIEW:', {
                             position: data.location.latLng,
                             panoId: data.location.panoId,
                             distance: google.maps.geometry.spherical.computeDistanceBetween(
@@ -150,7 +148,6 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                                 lng: actualPosition.lng()
                             };
                             
-                            console.log('📍 ACTUAL STREET VIEW POSITION:', {
                                 lat: actualCoords.lat,
                                 lng: actualCoords.lng,
                                 latFormatted: actualCoords.lat.toFixed(8),
@@ -177,7 +174,6 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                                 lng: actualPosition.lng()
                             };
                             
-                            console.log('🎯 STREET VIEW PANO CHANGED - FINAL POSITION:', {
                                 lat: actualCoords.lat,
                                 lng: actualCoords.lng,
                                 latFormatted: actualCoords.lat.toFixed(8),
@@ -198,10 +194,8 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                     // Add listener for Street View status changes
                     google.maps.event.addListener(panoramaRef.current, 'status_changed', () => {
                         const status = panoramaRef.current.getStatus();
-                        console.log('📊 STREET VIEW STATUS:', status);
                         
                         if (status === 'OK') {
-                            console.log('✅ Street View loaded successfully');
                         } else if (status === 'ZERO_RESULTS') {
                             console.warn('⚠️ No Street View coverage at this location');
                         } else if (status === 'UNKNOWN_ERROR') {
@@ -212,7 +206,6 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                     // Add listener for when Street View is visible
                     google.maps.event.addListener(panoramaRef.current, 'visible_changed', () => {
                         const isVisible = panoramaRef.current.getVisible();
-                        console.log('👁️ STREET VIEW VISIBLE:', isVisible);
                         
                         if (!isVisible) {
                             console.warn('⚠️ Street View is not visible - may need to find nearby location');
@@ -227,10 +220,8 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                         if (!initialPanoId) {
                             // Set the initial panorama ID
                             initialPanoId = currentPanoId;
-                            console.log('🔒 LOCKED TO INITIAL PANORAMA:', initialPanoId);
                         } else if (currentPanoId !== initialPanoId) {
                             // If panorama changed, switch back to initial
-                            console.log('⚠️ Panorama changed, switching back to initial:', {
                                 from: currentPanoId,
                                 to: initialPanoId
                             });
