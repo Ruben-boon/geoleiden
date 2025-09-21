@@ -192,12 +192,14 @@ const GuessMap = ({
         <div className="relative">
             <div 
                 ref={mapRef} 
-                className="map-container w-full rounded-lg shadow-lg"
+                className="map-container w-full"
                 style={{ pointerEvents: 'auto' }}
             />
             <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-md text-sm">
                 {gameState === 'guessing' ? 'Klik om je gok te plaatsen' : 'Resultaten'}
             </div>
+            {/* Mobile overlay element */}
+            <div className="md:hidden absolute bottom-0 left-0 w-full h-6 bg-white z-10 shadow-none border-0"></div>
         </div>
     );
 };

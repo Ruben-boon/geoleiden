@@ -31,7 +31,8 @@ const SetupModal = ({ onStartGame }) => {
                                 alert('Voer een geldige API sleutel in');
                             }
                         }}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                        className="w-full text-white py-2 px-4 rounded-lg hover:opacity-90 transition-colors"
+                        style={{ backgroundColor: '#D62410' }}
                     >
                         Spel Starten
                     </button>

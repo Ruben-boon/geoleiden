@@ -1,4 +1,5 @@
 import React from "react";
+import { Target, MapPin, ArrowRight, FileText } from "lucide-react";
 
 const GameControls = ({
   gameState,
@@ -42,15 +43,24 @@ const GameControls = ({
               <button
                 onClick={onGuess}
                 disabled={!guessLocation}
-                className={`w-full py-2 px-4 rounded-md transition-colors ${
+                className={`w-full py-2 px-4 rounded-lg transition-colors ${
                   guessLocation
-                    ? "bg-green-600 text-white hover:bg-green-700"
+                    ? "text-white hover:opacity-90"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
+                style={guessLocation ? { backgroundColor: '#D62410' } : {}}
               >
-                {guessLocation
-                  ? "Gok Nu Bevestigen"
-                  : "Kies een locatie"}
+                {guessLocation ? (
+                  <div className="flex items-center justify-center">
+                    <Target className="w-4 h-4 mr-2" />
+                    Gok Nu Bevestigen
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Kies een locatie
+                  </div>
+                )}
               </button>
             </div>
           )}
@@ -66,9 +76,20 @@ const GameControls = ({
 
               <button
                 onClick={onNextRound}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                className="w-full text-white py-2 px-4 rounded-lg hover:opacity-90 transition-colors"
+                style={{ backgroundColor: '#D62410' }}
               >
-                {round < 3 ? "Volgende Ronde" : "Naam invullen"}
+                {round < 3 ? (
+                  <div className="flex items-center justify-center">
+                    <ArrowRight className="w-4 h-4 mr-2" />
+                    Volgende Ronde
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Naam invullen
+                  </div>
+                )}
               </button>
             </div>
           )}
@@ -79,7 +100,7 @@ const GameControls = ({
       <div className="md:hidden p-4 pb-6">
         {/* Mobile Timer and Round Info */}
         <div className="flex justify-between items-center mb-4">
-          <div className="text-center">
+          <div className="text-center flex-1">
             {gameState === "guessing" && (
               <div
                 className={`text-2xl font-bold ${
@@ -90,7 +111,7 @@ const GameControls = ({
               </div>
             )}
           </div>
-          <div className="text-center">
+          <div className="text-center flex-1">
             <div className="text-lg font-semibold text-gray-800">Ronde {round}/3</div>
             {totalDistance > 0 && (
               <div className="text-xs text-gray-500">
@@ -98,6 +119,14 @@ const GameControls = ({
               </div>
             )}
           </div>
+          {gameState === "result" && distance && (
+            <div className="text-center flex-1">
+              <div className="text-xs text-gray-600">Afstand</div>
+              <div className="text-lg font-bold text-gray-800">
+                {Math.round(distance)} m
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Mobile Action Buttons */}
@@ -105,30 +134,45 @@ const GameControls = ({
           <button
             onClick={onGuess}
             disabled={!guessLocation}
-            className={`w-full py-4 px-6 rounded-2xl text-lg font-semibold shadow-lg transition-all duration-200 ${
+            className={`w-full py-4 px-6 rounded-lg text-lg font-semibold shadow-lg transition-all duration-200 ${
               guessLocation
-                ? "bg-green-600 text-white hover:bg-green-700 active:scale-95"
+                ? "text-white hover:opacity-90 active:scale-95"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
+            style={guessLocation ? { backgroundColor: '#D62410' } : {}}
           >
-            {guessLocation ? "🎯 Gok Nu Bevestigen" : "📍 Kies een locatie"}
+            {guessLocation ? (
+              <div className="flex items-center justify-center">
+                <Target className="w-4 h-4 mr-2" />
+                Gok Nu Bevestigen
+              </div>
+            ) : (
+              <div className="flex items-center justify-center">
+                <MapPin className="w-4 h-4 mr-2" />
+                Kies een locatie
+              </div>
+            )}
           </button>
         )}
 
         {gameState === "result" && (
-          <div className="space-y-4">
-            <div className="text-center bg-gray-50 rounded-xl p-4">
-              <div className="text-sm text-gray-600 mb-1">Afstand</div>
-              <div className="text-2xl font-bold text-gray-800">
-                {distance ? `${Math.round(distance)} m` : "Berekenen..."}
-              </div>
-            </div>
-
+          <div className="space-y-2">
             <button
               onClick={onNextRound}
-              className="w-full bg-blue-600 text-white py-4 px-6 rounded-2xl text-lg font-semibold shadow-lg hover:bg-blue-700 active:scale-95 transition-all duration-200"
+              className="w-full text-white py-2 px-4 rounded-lg text-sm font-semibold hover:opacity-90 active:scale-95 transition-all duration-200"
+              style={{ backgroundColor: '#D62410' }}
             >
-              {round < 3 ? "➡️ Volgende Ronde" : "📝 Naam invullen"}
+              {round < 3 ? (
+                <div className="flex items-center justify-center">
+                  <ArrowRight className="w-4 h-4 mr-2" />
+                  Volgende Ronde
+                </div>
+              ) : (
+                <div className="flex items-center justify-center">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Naam invullen
+                </div>
+              )}
             </button>
           </div>
         )}

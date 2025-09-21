@@ -25,10 +25,32 @@
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
     .street-view-container {
-        height: 50vh;
+        height: 40vh !important;
+        max-height: 40vh !important;
+        overflow: hidden !important;
+        box-shadow: none !important;
     }
     .map-container {
-        height: 50vh;
+        height: 40vh !important;
+        max-height: 40vh !important;
+        overflow: hidden !important;
+        box-shadow: none !important;
+    }
+    
+    /* Force Google Maps to respect container height */
+    .street-view-container .gm-style {
+        height: 100% !important;
+        max-height: 100% !important;
+    }
+    
+    .street-view-container canvas {
+        max-height: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Remove all shadows on mobile */
+    * {
+        box-shadow: none !important;
     }
     
     /* Prevent scrolling on mobile */

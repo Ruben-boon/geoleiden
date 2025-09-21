@@ -407,54 +407,53 @@ const App = () => {
           </div>
 
           {/* Mobile Layout */}
-          <div className="md:hidden flex flex-col h-screen overflow-hidden">
-            {/* Mobile Header with Logo and Leaderboard Button */}
-            <div className="flex justify-between items-center p-2 bg-white shadow-sm z-20">
-              <img
-                src="logo_leiden.jpg"
-                alt="Leiden Logo"
-                className="w-8 h-8 rounded-full object-cover"
-              />
+          <div className="md:hidden h-screen flex flex-col overflow-hidden">
+            {/* Fixed Header - Logo and Leaderboard on top of Street View */}
+            <div className="fixed top-0 left-0 right-0 flex justify-between items-center px-2 py-1 z-20">
+              <div className="bg-white rounded-lg px-3 py-1 shadow-lg">
+                <img
+                  src="logo_leiden.jpg"
+                  alt="Leiden Logo"
+                  className="w-14 h-10 rounded-lg object-contain"
+                />
+              </div>
               <button
                 onClick={() => setShowHighScores(true)}
-                className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md"
+                className="text-white px-3 py-1 rounded-lg text-sm font-medium shadow-lg backdrop-blur-sm bg-opacity-90"
+                style={{ backgroundColor: '#D62410' }}
               >
                 Leaderboard
               </button>
             </div>
 
-            {/* Main Game Area - 50/50 split */}
-            <div className="flex-1 flex flex-col">
-              {/* Street View - 50% */}
-              <div className="h-1/2">
-                {mapsLoaded && currentLocation && (
-                  <StreetView
-                    currentLocation={currentLocation}
-                    apiKey={apiKey}
-                    onPositionUpdate={setActualStreetViewLocation}
-                    onStreetViewReady={setStreetViewReady}
-                    actualStreetViewLocation={actualStreetViewLocation}
-                    streetViewError={streetViewError}
-                  />
-                )}
-              </div>
-
-              {/* Map - 50% */}
-              <div className="h-1/2">
-                {mapsLoaded && currentLocation && (
-                  <GuessMap
-                    gameState={gameState}
-                    currentLocation={actualStreetViewLocation || currentLocation}
-                    guessLocation={guessLocation}
-                    onGuessLocation={setGuessLocation}
-                    apiKey={apiKey}
-                  />
-                )}
-              </div>
+            <div className="h-[40%]">
+              {mapsLoaded && currentLocation && (
+                <StreetView
+                  currentLocation={currentLocation}
+                  apiKey={apiKey}
+                  onPositionUpdate={setActualStreetViewLocation}
+                  onStreetViewReady={setStreetViewReady}
+                  actualStreetViewLocation={actualStreetViewLocation}
+                  streetViewError={streetViewError}
+                />
+              )}
             </div>
 
-            {/* Mobile Bottom Controls */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 z-30">
+            {/* Map - 40% height, never changes */}
+            <div className="h-[40%]">
+              {mapsLoaded && currentLocation && (
+                <GuessMap
+                  gameState={gameState}
+                  currentLocation={actualStreetViewLocation || currentLocation}
+                  guessLocation={guessLocation}
+                  onGuessLocation={setGuessLocation}
+                  apiKey={apiKey}
+                />
+              )}
+            </div>
+
+            {/* Bottom Controls - Variable height, starts at ~20%, grows when round ends */}
+            <div className="flex-1 bg-white shadow-lg border-t border-gray-200 flex flex-col justify-center">
               <GameControls
                 gameState={gameState}
                 score={score}

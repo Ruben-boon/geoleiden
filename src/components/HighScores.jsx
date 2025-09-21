@@ -1,15 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import highScoresService from '../services/highScoresService';
 
+// Function to calculate how many items can fit based on screen size
+const getMaxItemsForScreen = () => {
+    if (typeof window === 'undefined') return 5; // Default for SSR
+    
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    // Calculate available height (80vh minus header and padding)
+    const availableHeight = height * 0.8 - 120; // 120px for header and padding
+    const itemHeight = 80; // Approximate height per item
+    const maxItems = Math.floor(availableHeight / itemHeight);
+    
+    // Set minimum and maximum bounds
+    if (width < 768) return 3; // Tablet
+    if (width < 1024) return Math.max(3, Math.min(5, maxItems)); // Small desktop
+    if (width < 1280) return Math.max(5, Math.min(8, maxItems)); // Medium desktop
+    return Math.max(8, Math.min(12, maxItems)); // Large desktop
+};
+
 const HighScores = ({ isVisible, onClose }) => {
     const [highScores, setHighScores] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [maxItems, setMaxItems] = useState(5);
 
     useEffect(() => {
         if (isVisible) {
             loadHighScores();
+            setMaxItems(getMaxItemsForScreen());
         }
     }, [isVisible]);
+
+    // Update max items when window resizes
+    useEffect(() => {
+        const handleResize = () => {
+            setMaxItems(getMaxItemsForScreen());
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const loadHighScores = async () => {
         setLoading(true);
@@ -52,7 +83,7 @@ const HighScores = ({ isVisible, onClose }) => {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {highScores.map((score, index) => (
+                            {highScores.slice(0, maxItems).map((score, index) => (
                                 <div 
                                     key={score.id}
                                     className={`flex justify-between items-center p-3 rounded-lg ${
@@ -115,7 +146,7 @@ const HighScores = ({ isVisible, onClose }) => {
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {highScores.map((score, index) => (
+                                {highScores.slice(0, maxItems).map((score, index) => (
                                     <div 
                                         key={score.id}
                                         className={`flex justify-between items-center p-4 rounded-2xl shadow-sm ${

@@ -40,18 +40,20 @@ const NameEntry = ({ isVisible, score, totalDistance, onSubmit, onSkip }) => {
                         <button
                             type="submit"
                             disabled={!playerName.trim()}
-                            className={`flex-1 py-2 px-4 rounded-md transition-colors ${
+                            className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
                                 playerName.trim() 
-                                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                                    ? 'text-white hover:opacity-90' 
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             }`}
+                            style={playerName.trim() ? { backgroundColor: '#D62410' } : {}}
                         >
                             Score Opslaan
                         </button>
                         <button
                             type="button"
                             onClick={onSkip}
-                            className="flex-1 py-2 px-4 rounded-md bg-gray-600 text-white hover:bg-gray-700 transition-colors"
+                            className="flex-1 py-2 px-4 rounded-lg text-white hover:opacity-90 transition-colors"
+                            style={{ backgroundColor: '#D62410' }}
                         >
                             Overslaan
                         </button>

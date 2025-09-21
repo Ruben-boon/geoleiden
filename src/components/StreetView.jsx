@@ -248,8 +248,7 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
         <div className="relative">
             <div 
                 ref={streetViewRef} 
-                className="street-view-container w-full rounded-lg shadow-lg"
-                style={{ minHeight: '400px' }}
+                className="street-view-container w-full h-full"
             />
             {!currentLocation && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
@@ -272,6 +271,8 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                     ⚠️ Geen Street View
                 </div>
             )}
+            {/* Mobile overlay element */}
+            <div className="md:hidden absolute bottom-0 left-0 w-full h-6 bg-white z-10 shadow-none border-0"></div>
         </div>
     );
 };
