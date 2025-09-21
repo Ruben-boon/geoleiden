@@ -1,0 +1,18 @@
+.street-view-container {
+    height: 60vh;
+    width: 100%;
+}
+
+.map-container {
+    height: 40vh;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .street-view-container {
+        height: 50vh;
+    }
+    .map-container {
+        height: 50vh;
+    }
+}
