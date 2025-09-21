@@ -8,11 +8,36 @@
     width: 100%;
 }
 
+/* Mobile animations */
+@keyframes slide-up {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+}
+
+/* Mobile responsive adjustments */
 @media (max-width: 768px) {
     .street-view-container {
         height: 50vh;
     }
     .map-container {
         height: 50vh;
+    }
+    
+    /* Prevent scrolling on mobile */
+    body {
+        overflow: hidden;
+    }
+    
+    /* Mobile touch improvements */
+    button {
+        -webkit-tap-highlight-color: transparent;
     }
 }

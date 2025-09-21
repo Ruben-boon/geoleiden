@@ -352,57 +352,126 @@ const App = () => {
       />
 
       {gameState !== "setup" && (
-        <div className="flex h-screen h-full">
-          <div className="flex-1 p-2 pace-y-4 h-full ">
-            {mapsLoaded && currentLocation && (
-              <>
-                <StreetView
-                  currentLocation={currentLocation}
-                  apiKey={apiKey}
-                  onPositionUpdate={setActualStreetViewLocation}
-                  onStreetViewReady={setStreetViewReady}
-                  actualStreetViewLocation={actualStreetViewLocation}
-                  streetViewError={streetViewError}
+        <>
+          {/* Desktop Layout */}
+          <div className="hidden md:flex h-screen h-full">
+            <div className="flex-1 p-2 pace-y-4 h-full ">
+              {mapsLoaded && currentLocation && (
+                <>
+                  <StreetView
+                    currentLocation={currentLocation}
+                    apiKey={apiKey}
+                    onPositionUpdate={setActualStreetViewLocation}
+                    onStreetViewReady={setStreetViewReady}
+                    actualStreetViewLocation={actualStreetViewLocation}
+                    streetViewError={streetViewError}
+                  />
+                  <GuessMap
+                    gameState={gameState}
+                    currentLocation={actualStreetViewLocation || currentLocation}
+                    guessLocation={guessLocation}
+                    onGuessLocation={setGuessLocation}
+                    apiKey={apiKey}
+                  />
+                </>
+              )}
+            </div>
+
+            <div className="w-64 p-2 flex flex-col space-y-4 h-full justify-between">
+              <div className="p-4">
+                <img
+                  src="logo_leiden.jpg"
+                  alt="Leiden Logo"
+                  className="w-full rounded-lg "
                 />
-                <GuessMap
-                  gameState={gameState}
-                  currentLocation={actualStreetViewLocation || currentLocation}
-                  guessLocation={guessLocation}
-                  onGuessLocation={setGuessLocation}
-                  apiKey={apiKey}
-                />
-              </>
-            )}
+              </div>
+
+              <HighScoresDisplay
+                onShowFullHighScores={() => setShowHighScores(true)}
+              />
+              <GameControls
+                gameState={gameState}
+                score={score}
+                round={round}
+                distance={distance}
+                roundScore={roundScore}
+                totalDistance={totalDistance}
+                timeLeft={timeLeft}
+                onGuess={handleGuess}
+                onNextRound={handleNextRound}
+                onNewGame={handleNewGame}
+                guessLocation={guessLocation}
+                onShowHighScores={() => setShowHighScores(true)}
+              />
+            </div>
           </div>
 
-          <div className="w-64 p-2 flex flex-col space-y-4 h-full justify-between">
-            <div className="p-4">
+          {/* Mobile Layout */}
+          <div className="md:hidden flex flex-col h-screen overflow-hidden">
+            {/* Mobile Header with Logo and Leaderboard Button */}
+            <div className="flex justify-between items-center p-2 bg-white shadow-sm z-20">
               <img
                 src="logo_leiden.jpg"
                 alt="Leiden Logo"
-                className="w-full rounded-lg "
+                className="w-8 h-8 rounded-full object-cover"
               />
+              <button
+                onClick={() => setShowHighScores(true)}
+                className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md"
+              >
+                Leaderboard
+              </button>
             </div>
 
-            <HighScoresDisplay
-              onShowFullHighScores={() => setShowHighScores(true)}
-            />
-            <GameControls
-              gameState={gameState}
-              score={score}
-              round={round}
-              distance={distance}
-              roundScore={roundScore}
-              totalDistance={totalDistance}
-              timeLeft={timeLeft}
-              onGuess={handleGuess}
-              onNextRound={handleNextRound}
-              onNewGame={handleNewGame}
-              guessLocation={guessLocation}
-              onShowHighScores={() => setShowHighScores(true)}
-            />
+            {/* Main Game Area - 50/50 split */}
+            <div className="flex-1 flex flex-col">
+              {/* Street View - 50% */}
+              <div className="h-1/2">
+                {mapsLoaded && currentLocation && (
+                  <StreetView
+                    currentLocation={currentLocation}
+                    apiKey={apiKey}
+                    onPositionUpdate={setActualStreetViewLocation}
+                    onStreetViewReady={setStreetViewReady}
+                    actualStreetViewLocation={actualStreetViewLocation}
+                    streetViewError={streetViewError}
+                  />
+                )}
+              </div>
+
+              {/* Map - 50% */}
+              <div className="h-1/2">
+                {mapsLoaded && currentLocation && (
+                  <GuessMap
+                    gameState={gameState}
+                    currentLocation={actualStreetViewLocation || currentLocation}
+                    guessLocation={guessLocation}
+                    onGuessLocation={setGuessLocation}
+                    apiKey={apiKey}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Mobile Bottom Controls */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 z-30">
+              <GameControls
+                gameState={gameState}
+                score={score}
+                round={round}
+                distance={distance}
+                roundScore={roundScore}
+                totalDistance={totalDistance}
+                timeLeft={timeLeft}
+                onGuess={handleGuess}
+                onNextRound={handleNextRound}
+                onNewGame={handleNewGame}
+                guessLocation={guessLocation}
+                onShowHighScores={() => setShowHighScores(true)}
+              />
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
