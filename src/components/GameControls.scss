@@ -142,17 +142,25 @@
   }
 
   &__mobile {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     flex-direction: column;
     padding: vars.$spacing-3;
     gap: vars.$spacing-2;
     background: white;
     min-height: 20vh;
-    border-radius: vars.$rounded-lg;
+    min-height: 20dvh; // Dynamic viewport height for mobile browsers
+    border-radius: vars.$rounded-lg vars.$rounded-lg 0 0;
     box-shadow: vars.$shadow-lg;
     border: 1px solid rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    z-index: 10;
+    // Ensure it stays at the bottom even with address bar
+    bottom: env(safe-area-inset-bottom, 0);
 
     @include mixins.tablet-up {
       display: none;
@@ -180,7 +188,7 @@
       align-items: center;
       justify-content: center;
       width: 48px;
-      height: 100%;
+      height: 56px;
       background: linear-gradient(135deg, vars.$gray-800 0%, vars.$gray-700 100%);
       color: white;
       border: none;

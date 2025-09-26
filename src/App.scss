@@ -274,7 +274,9 @@
     flex-direction: column;
     overflow: hidden;
     height: calc(var(--vh, 1vh) * 100);
-    padding:4px;
+    padding: 4px;
+    padding-bottom: calc(20vh + 2rem); // Add padding for fixed mobile controls
+    padding-bottom: calc(20dvh + 2rem); // Dynamic viewport height
     @include mixins.tablet-up {
       display: none;
     }
