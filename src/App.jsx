@@ -211,6 +211,7 @@ const App = () => {
 
     const calculatedScore = calculateScore(calculatedDistance);
 
+    console.log("Game result:", {
       actualLocation: {
         lat: actualLocation.lat,
         lng: actualLocation.lng,

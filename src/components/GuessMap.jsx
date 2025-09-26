@@ -66,6 +66,7 @@ const GuessMap = ({
                     const position = event.latLng;
                     if (position) {
                         const guessCoords = { lat: position.lat(), lng: position.lng() };
+                        console.log("Guess location:", {
                             lat: guessCoords.lat,
                             lng: guessCoords.lng,
                             latFormatted: guessCoords.lat.toFixed(6),
@@ -109,6 +110,7 @@ const GuessMap = ({
     useEffect(() => {
         if (gameState === 'result' && currentLocation && guessLocation && mapInstanceRef.current && window.google) {
             try {
+                console.log("Result locations:", {
                     actualLocation: {
                         lat: currentLocation.lat,
                         lng: currentLocation.lng,

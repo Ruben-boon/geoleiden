@@ -17,6 +17,7 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
 
         setTimeout(() => {
             try {
+                console.log("Street view request:", {
                     requestedPosition: currentLocation,
                     lat: currentLocation.lat,
                     lng: currentLocation.lng
@@ -32,6 +33,7 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                 
                 streetViewService.getPanorama(request, (data, status) => {
                     if (status === 'OK' && data) {
+                        console.log("Street view data:", {
                             position: data.location.latLng,
                             panoId: data.location.panoId,
                             distance: google.maps.geometry.spherical.computeDistanceBetween(
@@ -147,7 +149,7 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                                 lat: actualPosition.lat(),
                                 lng: actualPosition.lng()
                             };
-                            
+                            console.log("Position changed:", {
                                 lat: actualCoords.lat,
                                 lng: actualCoords.lng,
                                 latFormatted: actualCoords.lat.toFixed(8),
@@ -173,7 +175,7 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                                 lat: actualPosition.lat(),
                                 lng: actualPosition.lng()
                             };
-                            
+                            console.log("Pano changed:", {
                                 lat: actualCoords.lat,
                                 lng: actualCoords.lng,
                                 latFormatted: actualCoords.lat.toFixed(8),
@@ -222,6 +224,7 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                             initialPanoId = currentPanoId;
                         } else if (currentPanoId !== initialPanoId) {
                             // If panorama changed, switch back to initial
+                            console.log("Switching back to initial pano:", {
                                 from: currentPanoId,
                                 to: initialPanoId
                             });
