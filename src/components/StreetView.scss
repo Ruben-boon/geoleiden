@@ -1,0 +1,46 @@
+@use '../styles/variables' as vars;
+@use '../styles/mixins' as mixins;
+
+.street-view {
+  position: relative;
+
+  &__loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: vars.$gray-100;
+
+    &-content {
+      text-align: center;
+    }
+
+    &-spinner {
+      @include mixins.loading-spinner;
+      height: 3rem;
+      width: 3rem;
+      margin: 0 auto vars.$spacing-4;
+    }
+
+    &-text {
+      color: vars.$gray-600;
+    }
+  }
+
+  &__error {
+    position: absolute;
+    top: vars.$spacing-4;
+    right: vars.$spacing-4;
+    background-color: vars.$red-600;
+    background-color: rgba(vars.$red-600, 0.9);
+    color: white;
+    padding: vars.$spacing-1 vars.$spacing-3;
+    border-radius: vars.$rounded-md;
+    font-size: vars.$text-sm;
+  }
+
+}

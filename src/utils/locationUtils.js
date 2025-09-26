@@ -24,8 +24,8 @@ export function calculateDistance(lat1, lng1, lat2, lng2) {
               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
               Math.sin(dLng/2) * Math.sin(dLng/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    // Return distance with higher precision
-    return Math.round(R * c * 100) / 100; // Round to 2 decimal places
+    // Return distance with higher precision - round to nearest meter for better user experience
+    return Math.round(R * c); // Round to nearest meter
 }
 
 export function calculateScore(distance) {

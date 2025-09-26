@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import './StreetView.scss';
 
 const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewReady, actualStreetViewLocation, streetViewError }) => {
     const streetViewRef = useRef(null);
@@ -27,20 +28,27 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                 const streetViewService = new google.maps.StreetViewService();
                 const request = {
                     location: currentLocation,
-                    radius: 500, // Search within 500m radius
+                    radius: 200, // Search within 200m radius for better accuracy
                     source: google.maps.StreetViewSource.OUTDOOR
                 };
                 
                 streetViewService.getPanorama(request, (data, status) => {
                     if (status === 'OK' && data) {
+                        const distanceFromGenerated = google.maps.geometry.spherical.computeDistanceBetween(
+                            currentLocation, 
+                            data.location.latLng
+                        );
+                        
                         console.log("Street view data:", {
                             position: data.location.latLng,
                             panoId: data.location.panoId,
-                            distance: google.maps.geometry.spherical.computeDistanceBetween(
-                                currentLocation, 
-                                data.location.latLng
-                            )
+                            distance: distanceFromGenerated
                         });
+                        
+                        // Warn if Street View location is significantly different from generated location
+                        if (distanceFromGenerated > 50) {
+                            console.warn(`⚠️ Street View location is ${Math.round(distanceFromGenerated)}m away from generated location. This may cause distance discrepancies.`);
+                        }
                         
                         // Use the found Street View position
                         const streetViewPosition = data.location.latLng;
@@ -103,7 +111,7 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                         addStreetViewListeners();
                         
                     } else {
-                        console.warn('⚠️ No Street View found within 500m radius, trying fallback...');
+                        console.warn('⚠️ No Street View found within 200m radius, trying fallback...');
                         // Fallback: try with original position but allow Google to find nearest
                         panoramaRef.current = new google.maps.StreetViewPanorama(
                             streetViewRef.current,
@@ -218,7 +226,7 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                     let initialPanoId = null;
                     google.maps.event.addListener(panoramaRef.current, 'pano_changed', () => {
                         const currentPanoId = panoramaRef.current.getPano();
-                        
+
                         if (!initialPanoId) {
                             // Set the initial panorama ID
                             initialPanoId = currentPanoId;
@@ -231,6 +239,7 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
                             panoramaRef.current.setPano(initialPanoId);
                         }
                     });
+
                 }
             } catch (error) {
                 console.error('Error initializing Street View:', error);
@@ -239,34 +248,24 @@ const StreetView = ({ currentLocation, apiKey, onPositionUpdate, onStreetViewRea
     }, [currentLocation, apiKey]);
 
     return (
-        <div className="relative">
-            <div 
-                ref={streetViewRef} 
+        <div className="street-view">
+            <div
+                ref={streetViewRef}
                 className="street-view-container w-full h-full"
             />
             {!currentLocation && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                        <p className="text-gray-600">Street View laden...</p>
+                <div className="street-view__loading">
+                    <div className="street-view__loading-content">
+                        <div className="street-view__loading-spinner"></div>
+                        <p className="street-view__loading-text">Street View laden...</p>
                     </div>
                 </div>
             )}
-            <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-md text-sm">
-                {currentLocation ? 'Ronde Actief' : 'Laden...'}
-            </div>
-            {actualStreetViewLocation && (
-                <div className="absolute top-4 right-4 bg-green-600 bg-opacity-90 text-white px-3 py-1 rounded-md text-sm">
-                    ✓ Exacte Positie
-                </div>
-            )}
             {streetViewError && (
-                <div className="absolute top-4 right-4 bg-red-600 bg-opacity-90 text-white px-3 py-1 rounded-md text-sm">
+                <div className="street-view__error">
                     ⚠️ Geen Street View
                 </div>
             )}
-            {/* Mobile overlay element */}
-            <div className="md:hidden absolute bottom-0 left-0 w-full h-6 bg-white z-10 shadow-none border-0"></div>
         </div>
     );
 };

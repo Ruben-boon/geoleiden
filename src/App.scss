@@ -1,0 +1,343 @@
+@use './styles/variables' as vars;
+@use './styles/mixins' as mixins;
+
+.app {
+  min-height: 100vh;
+
+  // Game complete state
+  &__game-complete {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-image: url('../public/poort.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+
+    &-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      max-width: 32rem;
+      width: 100%;
+      margin: 0 1rem;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+        border-radius: 20px;
+        pointer-events: none;
+      }
+    }
+
+    &-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 2rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 3;
+    }
+
+    &-distance {
+      font-size: 1.5rem;
+      color: #ff0c01;
+      margin-bottom: 2rem;
+      font-weight: bold;
+      position: relative;
+      z-index: 3;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    &-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: vars.$spacing-3;
+    }
+
+    &-button {
+      width: 100%;
+      background-color: #ff0c01;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(255, 12, 1, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(255, 12, 1, 0.4);
+
+        &::before {
+          left: 100%;
+        }
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+
+    &-leaderboard {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      opacity: 0.3;
+      overflow: hidden;
+      border-radius: 20px;
+
+      .high-scores-display {
+        transform: scale(0.8);
+        filter: blur(2px);
+        pointer-events: none;
+      }
+    }
+  }
+
+  // Loading state
+  &__loading {
+    @include mixins.full-screen-center;
+    background-image: url('../public/poort.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    &-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: vars.$rounded-lg;
+      box-shadow: vars.$shadow-lg;
+      padding: vars.$spacing-8;
+      max-width: 28rem;
+      width: 100%;
+      margin: 0 vars.$spacing-4;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    &-spinner {
+      @include mixins.loading-spinner;
+      height: 3rem;
+      width: 3rem;
+      margin: 0 auto vars.$spacing-4;
+    }
+
+    &-title {
+      font-size: vars.$text-xl;
+      font-weight: 600;
+      color: vars.$gray-800;
+      margin-bottom: vars.$spacing-2;
+    }
+
+    &-text {
+      color: vars.$gray-600;
+    }
+  }
+
+  // Error state
+  &__error {
+    @include mixins.full-screen-center;
+    background-color: vars.$gray-100;
+
+    &-container {
+      background: white;
+      border-radius: vars.$rounded-lg;
+      box-shadow: vars.$shadow-lg;
+      padding: vars.$spacing-8;
+      max-width: 28rem;
+      width: 100%;
+      margin: 0 vars.$spacing-4;
+      text-align: center;
+    }
+
+    &-alert {
+      background-color: vars.$red-50;
+      border: 1px solid vars.$red-200;
+      border-radius: vars.$rounded-md;
+      padding: vars.$spacing-4;
+      margin-bottom: vars.$spacing-6;
+      display: flex;
+      align-items: flex-start;
+      gap: vars.$spacing-3;
+    }
+
+    &-icon {
+      height: 1.25rem;
+      width: 1.25rem;
+      color: #ef4444;
+      flex-shrink: 0;
+    }
+
+    &-content {
+      flex: 1;
+
+      &-title {
+        font-size: vars.$text-sm;
+        font-weight: 500;
+        color: #991b1b;
+        margin-bottom: vars.$spacing-2;
+      }
+
+      &-description {
+        font-size: vars.$text-sm;
+        color: #7f1d1d;
+
+        p:not(:last-child) {
+          margin-bottom: vars.$spacing-1;
+        }
+      }
+    }
+
+    &-button {
+      @include mixins.button-primary;
+      width: 100%;
+      background-color: vars.$blue-primary;
+
+      &:hover {
+        background-color: vars.$blue-hover;
+      }
+    }
+  }
+
+  // Desktop layout
+  &__desktop {
+    display: none;
+    height: 100vh;
+
+    @include mixins.tablet-up {
+      display: flex;
+    }
+
+    &-main {
+      flex: 1;
+      padding: vars.$spacing-2;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    &-sidebar {
+      width: 16rem;
+      padding: vars.$spacing-2;
+      display: flex;
+      flex-direction: column;
+      gap: vars.$spacing-4;
+      height: 100%;
+      justify-content: space-between;
+    }
+
+  }
+
+  // Mobile layout
+  &__mobile {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: calc(var(--vh, 1vh) * 100);
+    padding:4px;
+    @include mixins.tablet-up {
+      display: none;
+    }
+
+    &-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: vars.$spacing-1 vars.$spacing-2;
+      z-index: 20;
+    }
+
+
+    &-controls {
+      flex: 1;
+      background: white;
+      box-shadow: vars.$shadow-lg;
+      border-top: 1px solid vars.$gray-200;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+}
+
+// Mobile responsive adjustments
+@include mixins.mobile {
+  .app {
+    &__game-complete,
+    &__loading,
+    &__error {
+      padding: vars.$spacing-2;
+
+      &-container {
+        padding: vars.$spacing-6;
+        margin: 0 vars.$spacing-2;
+      }
+    }
+
+    &__game-complete {
+      &-title {
+        font-size: vars.$text-2xl;
+        margin-bottom: vars.$spacing-3;
+      }
+
+
+      &-distance {
+        font-size: vars.$text-base;
+      }
+    }
+
+    &__loading {
+      &-title {
+        font-size: vars.$text-lg;
+      }
+
+      &-text {
+        font-size: vars.$text-sm;
+      }
+    }
+  }
+}

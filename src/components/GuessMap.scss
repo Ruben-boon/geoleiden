@@ -1,0 +1,72 @@
+@use '../styles/variables' as vars;
+@use '../styles/mixins' as mixins;
+
+.guess-map {
+  position: relative;
+
+  &__status {
+    position: absolute;
+    top: vars.$spacing-4;
+    left: vars.$spacing-4;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: vars.$spacing-1 vars.$spacing-3;
+    border-radius: vars.$rounded-md;
+    font-size: vars.$text-sm;
+    z-index: 10;
+  }
+
+
+  &__distance-scale {
+    position: absolute;
+    bottom: vars.$spacing-4;
+    right: vars.$spacing-4;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-radius: vars.$rounded-md;
+    padding: vars.$spacing-2;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.distance-scale {
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: vars.$spacing-2;
+  }
+
+  &__line {
+    width: 60px;
+    height: 2px;
+    background-color: #333;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: -2px;
+      width: 2px;
+      height: 6px;
+      background-color: #333;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: -2px;
+      width: 2px;
+      height: 6px;
+      background-color: #333;
+    }
+  }
+
+  &__label {
+    font-size: vars.$text-xs;
+    color: #333;
+    font-weight: 500;
+  }
+}

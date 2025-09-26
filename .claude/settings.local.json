@@ -3,7 +3,13 @@
     "allow": [
       "Bash(xargs kill:*)",
       "Bash(npx eslint:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(claude-code --version)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)"
     ],
     "deny": [],
     "ask": []

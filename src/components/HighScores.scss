@@ -1,0 +1,403 @@
+@use '../styles/variables' as vars;
+@use '../styles/mixins' as mixins;
+
+.high-scores {
+  // Desktop modal
+  &__desktop-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    backdrop-filter: blur(4px);
+
+    @include mixins.tablet-up {
+      display: flex;
+    }
+  }
+
+  &__desktop-modal {
+    background: white;
+    border-radius: vars.$rounded-3xl;
+    padding: vars.$spacing-8;
+    max-width: 40rem;
+    width: 100%;
+    margin: 0 vars.$spacing-4;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__desktop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: vars.$spacing-6;
+    flex-shrink: 0;
+  }
+
+  &__desktop-content {
+    flex: 1;
+    overflow-y: auto;
+    margin: 0 calc(-1 * vars.$spacing-2);
+    padding: 0 vars.$spacing-2;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: vars.$gray-100;
+      border-radius: vars.$rounded-full;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: vars.$gray-400;
+      border-radius: vars.$rounded-full;
+
+      &:hover {
+        background: vars.$gray-500;
+      }
+    }
+  }
+
+  &__desktop-title {
+    font-size: vars.$text-3xl;
+    font-weight: bold;
+    color: vars.$gray-800;
+    background: linear-gradient(135deg, vars.$primary-red, vars.$secondary-red);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &__desktop-close {
+    color: vars.$gray-500;
+    background: vars.$gray-100;
+    border: none;
+    font-size: vars.$text-2xl;
+    cursor: pointer;
+    padding: vars.$spacing-2;
+    border-radius: vars.$rounded-full;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: vars.$gray-700;
+      background: vars.$gray-200;
+      transform: scale(1.1);
+    }
+  }
+
+  // Mobile overlay
+  &__mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 50;
+    backdrop-filter: blur(4px);
+
+    @include mixins.tablet-up {
+      display: none;
+    }
+  }
+
+  &__mobile-modal {
+    background: white;
+    border-radius: vars.$rounded-3xl vars.$rounded-3xl 0 0;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 -20px 25px -5px rgba(0, 0, 0, 0.1), 0 -8px 10px -6px rgba(0, 0, 0, 0.1);
+
+    // Custom scrollbar for mobile
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: vars.$gray-100;
+      border-radius: vars.$rounded-full;
+      margin: vars.$spacing-4;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: vars.$gray-400;
+      border-radius: vars.$rounded-full;
+
+      &:hover {
+        background: vars.$gray-500;
+      }
+    }
+  }
+
+  &__mobile-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    border-bottom: 1px solid vars.$gray-200;
+    padding: vars.$spacing-6 vars.$spacing-4 vars.$spacing-4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: vars.$rounded-3xl vars.$rounded-3xl 0 0;
+  }
+
+  &__mobile-title {
+    font-size: vars.$text-2xl;
+    font-weight: bold;
+    color: vars.$gray-800;
+  }
+
+  &__mobile-close {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: vars.$rounded-full;
+    background: vars.$gray-100;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: vars.$gray-600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: vars.$gray-200;
+      transform: scale(1.1);
+    }
+  }
+
+  &__mobile-content {
+    padding: vars.$spacing-4;
+  }
+
+  // Loading states
+  &__loading {
+    text-align: center;
+    padding: vars.$spacing-12;
+
+    &--mobile {
+      padding: vars.$spacing-12;
+    }
+
+    &-spinner {
+      @include mixins.loading-spinner;
+      height: 3rem;
+      width: 3rem;
+      margin: 0 auto vars.$spacing-4;
+      border-width: 3px;
+    }
+
+    &-text {
+      color: vars.$gray-600;
+      font-size: vars.$text-lg;
+    }
+  }
+
+  &__empty {
+    text-align: center;
+    padding: vars.$spacing-12;
+
+    &--mobile {
+      padding: vars.$spacing-12;
+    }
+
+    &-icon {
+      font-size: 4rem;
+      margin-bottom: vars.$spacing-4;
+    }
+
+    &-title {
+      color: vars.$gray-600;
+      font-size: vars.$text-lg;
+      margin-bottom: vars.$spacing-2;
+    }
+
+    &-subtitle {
+      font-size: vars.$text-sm;
+      color: vars.$gray-500;
+    }
+  }
+
+  // Score items
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: vars.$spacing-3;
+
+    &--mobile {
+      gap: vars.$spacing-3;
+    }
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: vars.$spacing-4;
+    border-radius: vars.$rounded-2xl;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    margin-bottom: vars.$spacing-2;
+
+    &--rank-1 {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-color: #f59e0b;
+      box-shadow: 0 8px 25px -5px rgba(245, 158, 11, 0.3);
+      transform: scale(1.02);
+    }
+
+    &--rank-2 {
+      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+      border-color: #64748b;
+      box-shadow: 0 8px 25px -5px rgba(100, 116, 139, 0.3);
+      transform: scale(1.01);
+    }
+
+    &--rank-3 {
+      background: linear-gradient(135deg, #fed7aa, #fdba74);
+      border-color: #ea580c;
+      box-shadow: 0 8px 25px -5px rgba(234, 88, 12, 0.3);
+      transform: scale(1.005);
+    }
+
+    &--other {
+      background: vars.$gray-50;
+      border-color: vars.$gray-200;
+      box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+      &:hover {
+        background: vars.$gray-100;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+        border-color: vars.$gray-300;
+      }
+    }
+
+    &--mobile {
+      padding: vars.$spacing-4;
+      border-radius: vars.$rounded-2xl;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &__item-left {
+    display: flex;
+    align-items: center;
+    gap: vars.$spacing-4;
+
+    &--mobile {
+      gap: vars.$spacing-4;
+    }
+  }
+
+  &__rank-badge {
+    width: 3rem;
+    height: 3rem;
+    border-radius: vars.$rounded-full;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: vars.$text-xl;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+
+    &--rank-1 {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      box-shadow: 0 6px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    &--rank-2 {
+      background: linear-gradient(135deg, #64748b, #475569);
+      color: white;
+      box-shadow: 0 6px 12px rgba(100, 116, 139, 0.4);
+    }
+
+    &--rank-3 {
+      background: linear-gradient(135deg, #ea580c, #c2410c);
+      color: white;
+      box-shadow: 0 6px 12px rgba(234, 88, 12, 0.4);
+    }
+
+    &--other {
+      background: linear-gradient(135deg, vars.$gray-300, vars.$gray-400);
+      color: vars.$gray-700;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    &--mobile {
+      width: 3rem;
+      height: 3rem;
+      font-size: vars.$text-xl;
+    }
+  }
+
+  &__player-info {
+    &-name {
+      font-weight: bold;
+      color: vars.$gray-800;
+      font-size: vars.$text-lg;
+      margin-bottom: 4px;
+
+      &--mobile {
+        font-size: vars.$text-lg;
+      }
+    }
+
+    &-date {
+      font-size: vars.$text-sm;
+      color: vars.$gray-500;
+      font-weight: 500;
+
+      &--mobile {
+        font-size: vars.$text-sm;
+      }
+    }
+  }
+
+  &__item-right {
+    text-align: right;
+  }
+
+  &__distance {
+    font-weight: bold;
+    font-size: vars.$text-2xl;
+    color: vars.$gray-800;
+    margin-bottom: 4px;
+
+    &--mobile {
+      font-size: vars.$text-2xl;
+    }
+  }
+
+  &__rounds {
+    font-size: vars.$text-sm;
+    color: vars.$gray-500;
+    font-weight: 500;
+
+    &--mobile {
+      font-size: vars.$text-sm;
+    }
+  }
+}

@@ -1,29 +1,91 @@
 import React, { useState } from 'react';
+import './NameEntry.scss';
+import highScoresService from '../services/highScoresService';
 
-const NameEntry = ({ isVisible, score, totalDistance, onSubmit, onSkip }) => {
+const NameEntry = ({ isVisible, totalDistance, onSubmit, onSkip }) => {
     const [playerName, setPlayerName] = useState('');
+    const [submitResult, setSubmitResult] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e) => {
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (playerName.trim()) {
-            onSubmit(playerName.trim());
+        if (playerName.trim() && !isSubmitting) {
+            setIsSubmitting(true);
+            setSubmitResult(null);
+            
+            try {
+                const result = await highScoresService.checkAndUpdateScore(
+                    playerName.trim(), 
+                    totalDistance, 
+                    3
+                );
+                
+                setSubmitResult(result);
+                
+                if (result.success) {
+                    // Call the original onSubmit to proceed with the game flow
+                    onSubmit(playerName.trim());
+                }
+            } catch (error) {
+                console.error('Error submitting score:', error);
+                setSubmitResult({ success: false, error: error.message });
+            } finally {
+                setIsSubmitting(false);
+            }
         }
     };
 
     if (!isVisible) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Spel Afgelopen!</h2>
-                <div className="text-center mb-6">
-                    <p className="text-lg text-gray-600 mb-2">Eindscore: {score}</p>
-                    <p className="text-md text-gray-600">Totale Afstand: {Math.round(totalDistance)} m</p>
+        <div className="name-entry">
+            <div className="name-entry__container">
+                <div className="name-entry__distance-container">
+                    <p className="name-entry__distance-container-distance">{Math.round(totalDistance)} m</p>
                 </div>
-                
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+
+                {submitResult && (
+                    <div className={`name-entry__feedback name-entry__feedback--${submitResult.success ? 'success' : 'error'}`}>
+                        {submitResult.success ? (
+                            submitResult.isUpdate ? (
+                                <div className="name-entry__feedback-content">
+                                    <span className="name-entry__feedback-icon">🎉</span>
+                                    <div className="name-entry__feedback-text">
+                                        <strong>Score verbeterd!</strong>
+                                        <p>Van {Math.round(submitResult.oldDistance)}m naar {Math.round(submitResult.newDistance)}m 
+                                        ({Math.round(submitResult.improvement)}m beter!)</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="name-entry__feedback-content">
+                                    <span className="name-entry__feedback-icon">✨</span>
+                                    <div className="name-entry__feedback-text">
+                                        <strong>Nieuwe score toegevoegd!</strong>
+                                        <p>Welkom in de leaderboard!</p>
+                                    </div>
+                                </div>
+                            )
+                        ) : (
+                            <div className="name-entry__feedback-content">
+                                <span className="name-entry__feedback-icon">⚠️</span>
+                                <div className="name-entry__feedback-text">
+                                    <strong>Score niet opgeslagen</strong>
+                                    <p>
+                                        {submitResult.reason === 'existing_better' 
+                                            ? `Je bestaande score van ${Math.round(submitResult.existingDistance)}m is beter dan ${Math.round(submitResult.newDistance)}m`
+                                            : 'Er is een fout opgetreden. Probeer opnieuw.'
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="name-entry__form">
+                    <div className="name-entry__input-group">
+                        <label className="name-entry__input-group-label">
                             Voer je naam in als Leidse glibber:
                         </label>
                         <input
@@ -31,31 +93,25 @@ const NameEntry = ({ isVisible, score, totalDistance, onSubmit, onSkip }) => {
                             value={playerName}
                             onChange={(e) => setPlayerName(e.target.value)}
                             placeholder="Leidse glibber"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="name-entry__input-group-input"
                             maxLength={20}
                             autoFocus
                         />
                     </div>
-                    <div className="flex space-x-3">
-                        <button
-                            type="submit"
-                            disabled={!playerName.trim()}
-                            className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                                playerName.trim() 
-                                    ? 'text-white hover:opacity-90' 
-                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
-                            style={playerName.trim() ? { backgroundColor: '#D62410' } : {}}
-                        >
-                            Score Opslaan
-                        </button>
+                    <div className="name-entry__button-group">
                         <button
                             type="button"
                             onClick={onSkip}
-                            className="flex-1 py-2 px-4 rounded-lg text-white hover:opacity-90 transition-colors"
-                            style={{ backgroundColor: '#D62410' }}
+                            className="name-entry__button-group-skip"
                         >
                             Overslaan
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={!playerName.trim() || isSubmitting}
+                            className="name-entry__button-group-submit"
+                        >
+                            {isSubmitting ? 'Bezig...' : 'Score Opslaan'}
                         </button>
                     </div>
                 </form>

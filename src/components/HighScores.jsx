@@ -1,23 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import highScoresService from '../services/highScoresService';
+import './HighScores.scss';
 
 // Function to calculate how many items can fit based on screen size
 const getMaxItemsForScreen = () => {
-    if (typeof window === 'undefined') return 5; // Default for SSR
-    
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    
-    // Calculate available height (80vh minus header and padding)
-    const availableHeight = height * 0.8 - 120; // 120px for header and padding
-    const itemHeight = 80; // Approximate height per item
-    const maxItems = Math.floor(availableHeight / itemHeight);
-    
-    // Set minimum and maximum bounds
-    if (width < 768) return 3; // Tablet
-    if (width < 1024) return Math.max(3, Math.min(5, maxItems)); // Small desktop
-    if (width < 1280) return Math.max(5, Math.min(8, maxItems)); // Medium desktop
-    return Math.max(8, Math.min(12, maxItems)); // Large desktop
+    return 20; // Show top 20 on both desktop and mobile
 };
 
 const HighScores = ({ isVisible, onClose }) => {
@@ -59,120 +46,122 @@ const HighScores = ({ isVisible, onClose }) => {
     return (
         <>
             {/* Desktop Modal */}
-            <div className="hidden md:flex fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-bold text-gray-800">Top Leidse Glibbers</h2>
+            <div className="high-scores__desktop-overlay">
+                <div className="high-scores__desktop-modal">
+                    <div className="high-scores__desktop-header">
+                        <h2 className="high-scores__desktop-title">🏆 Top Leidse Glibbers</h2>
                         <button
                             onClick={onClose}
-                            className="text-gray-500 hover:text-gray-700 text-2xl"
+                            className="high-scores__desktop-close"
                         >
                             ×
                         </button>
                     </div>
-                    
-                    {loading ? (
-                        <div className="text-center py-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                            <p className="text-gray-600">Scores laden...</p>
-                        </div>
-                    ) : highScores.length === 0 ? (
-                        <div className="text-center py-8">
-                            <p className="text-gray-600">Nog geen scores!</p>
-                            <p className="text-sm text-gray-500 mt-2">Wees de eerste die een record zet!</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                            {highScores.slice(0, maxItems).map((score, index) => (
-                                <div 
-                                    key={score.id}
-                                    className={`flex justify-between items-center p-3 rounded-lg ${
-                                        index === 0 ? 'bg-yellow-50 border-2 border-yellow-200' :
-                                        index === 1 ? 'bg-gray-50 border-2 border-gray-200' :
-                                        index === 2 ? 'bg-orange-50 border-2 border-orange-200' :
-                                        'bg-gray-50'
-                                    }`}
-                                >
-                                    <div className="flex items-center space-x-3">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                                            index === 0 ? 'bg-yellow-400 text-white' :
-                                            index === 1 ? 'bg-gray-400 text-white' :
-                                            index === 2 ? 'bg-orange-400 text-white' :
-                                            'bg-gray-300 text-gray-700'
-                                        }`}>
-                                            {index + 1}
+
+                    <div className="high-scores__desktop-content">
+                        {loading ? (
+                            <div className="high-scores__loading">
+                                <div className="high-scores__loading-spinner"></div>
+                                <p className="high-scores__loading-text">Scores laden...</p>
+                            </div>
+                        ) : highScores.length === 0 ? (
+                            <div className="high-scores__empty">
+                                <div className="high-scores__empty-icon">🏆</div>
+                                <p className="high-scores__empty-title">Nog geen scores!</p>
+                                <p className="high-scores__empty-subtitle">Wees de eerste die een record zet!</p>
+                            </div>
+                        ) : (
+                            <div className="high-scores__list">
+                                {highScores.slice(0, maxItems).map((score, index) => (
+                                    <div
+                                        key={score.id}
+                                        className={`high-scores__item ${
+                                            index === 0 ? 'high-scores__item--rank-1' :
+                                            index === 1 ? 'high-scores__item--rank-2' :
+                                            index === 2 ? 'high-scores__item--rank-3' :
+                                            'high-scores__item--other'
+                                        }`}
+                                    >
+                                        <div className="high-scores__item-left">
+                                            <div className={`high-scores__rank-badge ${
+                                                index === 0 ? 'high-scores__rank-badge--rank-1' :
+                                                index === 1 ? 'high-scores__rank-badge--rank-2' :
+                                                index === 2 ? 'high-scores__rank-badge--rank-3' :
+                                                'high-scores__rank-badge--other'
+                                            }`}>
+                                                {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                                            </div>
+                                            <div className="high-scores__player-info">
+                                                <p className="high-scores__player-info-name">{score.playerName}</p>
+                                                <p className="high-scores__player-info-date">{score.formattedDate}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-semibold text-gray-800">{score.playerName}</p>
-                                            <p className="text-xs text-gray-500">{score.formattedDate}</p>
+                                        <div className="high-scores__item-right">
+                                            <p className="high-scores__distance">{Math.round(score.totalDistance)} m</p>
+                                            <p className="high-scores__rounds">{score.rounds} rounds</p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-bold text-lg text-gray-800">{Math.round(score.totalDistance)} m</p>
-                                        <p className="text-xs text-gray-500">{score.rounds} rounds</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
             {/* Mobile Fold-out */}
-            <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50">
-                <div className="bg-white rounded-t-3xl w-full max-h-[85vh] overflow-y-auto">
-                    {/* Mobile Header */}
-                    <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-gray-800">🏆 Top Leidse Glibbers</h2>
+            <div className="high-scores__mobile-overlay">
+                <div className="high-scores__mobile-modal">
+                    <div className="high-scores__mobile-header">
+                        <h2 className="high-scores__mobile-title">🏆 Top Leidse Glibbers</h2>
                         <button
                             onClick={onClose}
-                            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
+                            className="high-scores__mobile-close"
                         >
                             ✕
                         </button>
                     </div>
-                    
-                    <div className="p-4">
+
+                    <div className="high-scores__mobile-content">
                         {loading ? (
-                            <div className="text-center py-12">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                                <p className="text-gray-600">Scores laden...</p>
+                            <div className="high-scores__loading high-scores__loading--mobile">
+                                <div className="high-scores__loading-spinner"></div>
+                                <p className="high-scores__loading-text">Scores laden...</p>
                             </div>
                         ) : highScores.length === 0 ? (
-                            <div className="text-center py-12">
-                                <div className="text-6xl mb-4">🏆</div>
-                                <p className="text-gray-600 text-lg">Nog geen scores!</p>
-                                <p className="text-sm text-gray-500 mt-2">Wees de eerste die een record zet!</p>
+                            <div className="high-scores__empty high-scores__empty--mobile">
+                                <div className="high-scores__empty-icon">🏆</div>
+                                <p className="high-scores__empty-title">Nog geen scores!</p>
+                                <p className="high-scores__empty-subtitle">Wees de eerste die een record zet!</p>
                             </div>
                         ) : (
-                            <div className="space-y-3">
+                            <div className="high-scores__list high-scores__list--mobile">
                                 {highScores.slice(0, maxItems).map((score, index) => (
-                                    <div 
+                                    <div
                                         key={score.id}
-                                        className={`flex justify-between items-center p-4 rounded-2xl shadow-sm ${
-                                            index === 0 ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-2 border-yellow-300' :
-                                            index === 1 ? 'bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-300' :
-                                            index === 2 ? 'bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-orange-300' :
-                                            'bg-gray-50 border border-gray-200'
+                                        className={`high-scores__item high-scores__item--mobile ${
+                                            index === 0 ? 'high-scores__item--rank-1' :
+                                            index === 1 ? 'high-scores__item--rank-2' :
+                                            index === 2 ? 'high-scores__item--rank-3' :
+                                            'high-scores__item--other'
                                         }`}
                                     >
-                                        <div className="flex items-center space-x-4">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-md ${
-                                                index === 0 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white' :
-                                                index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-500 text-white' :
-                                                index === 2 ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' :
-                                                'bg-gray-300 text-gray-700'
+                                        <div className="high-scores__item-left high-scores__item-left--mobile">
+                                            <div className={`high-scores__rank-badge high-scores__rank-badge--mobile ${
+                                                index === 0 ? 'high-scores__rank-badge--rank-1' :
+                                                index === 1 ? 'high-scores__rank-badge--rank-2' :
+                                                index === 2 ? 'high-scores__rank-badge--rank-3' :
+                                                'high-scores__rank-badge--other'
                                             }`}>
                                                 {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                                             </div>
-                                            <div>
-                                                <p className="font-bold text-gray-800 text-lg">{score.playerName}</p>
-                                                <p className="text-sm text-gray-500">{score.formattedDate}</p>
+                                            <div className="high-scores__player-info">
+                                                <p className="high-scores__player-info-name high-scores__player-info-name--mobile">{score.playerName}</p>
+                                                <p className="high-scores__player-info-date high-scores__player-info-date--mobile">{score.formattedDate}</p>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="font-bold text-xl text-gray-800">{Math.round(score.totalDistance)} m</p>
-                                            <p className="text-sm text-gray-500">{score.rounds} rounds</p>
+                                        <div className="high-scores__item-right">
+                                            <p className="high-scores__distance high-scores__distance--mobile">{Math.round(score.totalDistance)} m</p>
+                                            <p className="high-scores__rounds high-scores__rounds--mobile">{score.rounds} rounds</p>
                                         </div>
                                     </div>
                                 ))}

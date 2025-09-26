@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import './GuessMap.scss';
 
 const GuessMap = ({ 
     gameState, 
@@ -88,10 +89,11 @@ const GuessMap = ({
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <circle cx="12" cy="12" r="10" fill="#3B82F6" stroke="white" stroke-width="2"/>
                                         <circle cx="12" cy="12" r="4" fill="white"/>
+                                        <circle cx="12" cy="12" r="1" fill="#3B82F6"/>
                                     </svg>
                                 `),
                                 scaledSize: new google.maps.Size(24, 24),
-                                anchor: new google.maps.Point(12, 24) // Anchor at bottom center for better accuracy
+                                anchor: new google.maps.Point(12, 12) // Center anchor for precise positioning
                             },
                             title: 'Jouw Gok',
                             optimized: false // Disable optimization for more accurate positioning
@@ -137,12 +139,13 @@ const GuessMap = ({
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="12" cy="12" r="10" fill="#EF4444" stroke="white" stroke-width="2"/>
                                 <circle cx="12" cy="12" r="4" fill="white"/>
+                                <circle cx="12" cy="12" r="1" fill="#EF4444"/>
                             </svg>
                         `),
                         scaledSize: new google.maps.Size(24, 24),
-                        anchor: new google.maps.Point(12, 24) // Anchor at bottom center for better accuracy
+                        anchor: new google.maps.Point(12, 12) // Center anchor for precise positioning
                     },
-                    title: 'Actual Location',
+                    title: 'Actual Street View Location',
                     optimized: false // Disable optimization for more accurate positioning
                 });
                 markersRef.current.push(actualMarker);
@@ -156,10 +159,11 @@ const GuessMap = ({
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="12" cy="12" r="10" fill="#3B82F6" stroke="white" stroke-width="2"/>
                                     <circle cx="12" cy="12" r="4" fill="white"/>
+                                    <circle cx="12" cy="12" r="1" fill="#3B82F6"/>
                                 </svg>
                             `),
                             scaledSize: new google.maps.Size(24, 24),
-                            anchor: new google.maps.Point(12, 24) // Anchor at bottom center for better accuracy
+                            anchor: new google.maps.Point(12, 12) // Center anchor for precise positioning
                         },
                         title: 'Your Guess',
                         optimized: false // Disable optimization for more accurate positioning
@@ -179,6 +183,14 @@ const GuessMap = ({
                 const bounds = new google.maps.LatLngBounds();
                 bounds.extend(currentLocation);
                 bounds.extend(guessLocation);
+                
+                // Add padding to bounds to prevent markers from being at the edge
+                const padding = 0.0001; // Small padding in degrees
+                bounds.extend({ lat: currentLocation.lat + padding, lng: currentLocation.lng + padding });
+                bounds.extend({ lat: currentLocation.lat - padding, lng: currentLocation.lng - padding });
+                bounds.extend({ lat: guessLocation.lat + padding, lng: guessLocation.lng + padding });
+                bounds.extend({ lat: guessLocation.lat - padding, lng: guessLocation.lng - padding });
+                
                 mapInstanceRef.current.fitBounds(bounds);
             } catch (error) {
                 console.error('Error showing results:', error);
@@ -186,18 +198,34 @@ const GuessMap = ({
         }
     }, [gameState, currentLocation, guessLocation]);
 
+    // Reset map position when a new round starts (gameState changes from 'result' to 'guessing')
+    useEffect(() => {
+        if (gameState === 'guessing' && mapInstanceRef.current) {
+            // Reset map to default center and zoom
+            mapInstanceRef.current.setCenter({ lat: 52.1601, lng: 4.4970 });
+            mapInstanceRef.current.setZoom(13);
+        }
+    }, [gameState]);
+
     return (
-        <div className="relative">
-            <div 
-                ref={mapRef} 
-                className="map-container w-full"
+        <div className="guess-map">
+            <div
+                ref={mapRef}
+                className="map-container guess-map__container"
                 style={{ pointerEvents: 'auto' }}
             />
-            <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-md text-sm">
+            <div className="guess-map__status">
                 {gameState === 'guessing' ? 'Klik om je gok te plaatsen' : 'Resultaten'}
             </div>
-            {/* Mobile overlay element */}
-            <div className="md:hidden absolute bottom-0 left-0 w-full h-6 bg-white z-10 shadow-none border-0"></div>
+            {/* Distance scale indicator for results */}
+            {gameState === 'result' && currentLocation && guessLocation && (
+                <div className="guess-map__distance-scale">
+                    <div className="distance-scale__content">
+                        <div className="distance-scale__line"></div>
+                        <div className="distance-scale__label">50m</div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

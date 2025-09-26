@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   generateRandomLeidenLocation,
   calculateDistance,
-  calculateScore,
 } from "./utils/locationUtils";
 import highScoresService from "./services/highScoresService";
 import StreetView from "./components/StreetView";
@@ -12,21 +11,20 @@ import HighScores from "./components/HighScores";
 import HighScoresDisplay from "./components/HighScoresDisplay";
 import GameControls from "./components/GameControls";
 import SetupModal from "./components/SetupModal";
-import logoLeiden from "../public/logo_leiden.jpg";
+import WelcomeScreen from "./components/WelcomeScreen";
+import "./App.scss";
 
 const App = () => {
   const [apiKey, setApiKey] = useState("");
-  const [gameState, setGameState] = useState("loading");
+  const [gameState, setGameState] = useState("welcome");
   const [currentLocation, setCurrentLocation] = useState(null);
   const [actualStreetViewLocation, setActualStreetViewLocation] =
     useState(null);
   const [streetViewReady, setStreetViewReady] = useState(false);
   const [streetViewError, setStreetViewError] = useState(false);
   const [guessLocation, setGuessLocation] = useState(null);
-  const [score, setScore] = useState(0);
   const [round, setRound] = useState(1);
   const [distance, setDistance] = useState(null);
-  const [roundScore, setRoundScore] = useState(0);
   const [totalDistance, setTotalDistance] = useState(0);
   const [usedLocations, setUsedLocations] = useState([]);
   const [gameComplete, setGameComplete] = useState(false);
@@ -36,8 +34,7 @@ const App = () => {
   const [timeLeft, setTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
 
-  useEffect(() => {
-    
+  const loadGoogleMaps = () => {
     if (!apiKey) {
       return;
     }
@@ -52,7 +49,6 @@ const App = () => {
     script.defer = true;
 
     script.onload = () => {
-      setGameState("loading");
       setTimeout(() => {
         if (window.google && window.google.maps) {
           setMapsLoaded(true);
@@ -78,16 +74,7 @@ const App = () => {
     };
 
     document.head.appendChild(script);
-
-    return () => {
-      const existingScript = document.querySelector(
-        `script[src*="maps.googleapis.com"]`
-      );
-      if (existingScript) {
-        existingScript.remove();
-      }
-    };
-  }, [apiKey]);
+  };
 
   useEffect(() => {
     let interval = null;
@@ -98,24 +85,19 @@ const App = () => {
     } else if (timeLeft === 0 && timerActive) {
       setTimerActive(false);
 
-      if (guessLocation && currentLocation) {
+      if (guessLocation && actualStreetViewLocation) {
         const calculatedDistance = calculateDistance(
-          currentLocation.lat,
-          currentLocation.lng,
+          actualStreetViewLocation.lat,
+          actualStreetViewLocation.lng,
           guessLocation.lat,
           guessLocation.lng
         );
 
-        const calculatedScore = calculateScore(calculatedDistance);
-
         setDistance(calculatedDistance);
-        setRoundScore(calculatedScore);
-        setScore((prev) => prev + calculatedScore);
         setTotalDistance((prev) => prev + calculatedDistance);
       } else {
         const penaltyDistance = 2000;
         setDistance(penaltyDistance);
-        setRoundScore(0);
         setTotalDistance((prev) => prev + penaltyDistance);
       }
 
@@ -161,9 +143,9 @@ const App = () => {
     if (isValidApiKey) {
       setApiKey(envApiKey);
       setMapsLoaded(false);
-      setGameState("loading");
+      // Keep welcome screen even with valid API key
     } else {
-      setGameState("setup");
+      // Still show welcome screen, but will need setup later
     }
   }, []);
 
@@ -182,7 +164,6 @@ const App = () => {
     setGuessLocation(null);
     setGameState("guessing");
     setDistance(null);
-    setRoundScore(0);
     setTimeLeft(30);
     setTimerActive(true);
 
@@ -193,14 +174,16 @@ const App = () => {
 
     setTimerActive(false);
 
-    // Only use actual Street View location - this is the real position
+    // Always use actual Street View location as the target - this is the real position
     if (!actualStreetViewLocation) {
       console.warn(
-        "⚠️ No actual Street View location available, using generated location as fallback"
+        "⚠️ No actual Street View location available, cannot proceed without Street View data"
       );
+      setStreetViewError(true);
+      return;
     }
 
-    const actualLocation = actualStreetViewLocation || currentLocation;
+    const actualLocation = actualStreetViewLocation;
 
     const calculatedDistance = calculateDistance(
       actualLocation.lat,
@@ -209,27 +192,37 @@ const App = () => {
       guessLocation.lng
     );
 
-    const calculatedScore = calculateScore(calculatedDistance);
-
     console.log("Game result:", {
       actualLocation: {
         lat: actualLocation.lat,
         lng: actualLocation.lng,
-        source: actualStreetViewLocation ? "STREET_VIEW" : "GENERATED",
+        source: "STREET_VIEW",
+      },
+      generatedLocation: {
+        lat: currentLocation.lat,
+        lng: currentLocation.lng,
+        source: "GENERATED",
       },
       guessLocation: {
         lat: guessLocation.lat,
         lng: guessLocation.lng,
       },
       distance: calculatedDistance,
-      score: calculatedScore,
-      usingActualStreetView: !!actualStreetViewLocation,
+      usingActualStreetView: true,
       streetViewReady: streetViewReady,
+      locationDifference: {
+        latDiff: Math.abs(actualLocation.lat - currentLocation.lat),
+        lngDiff: Math.abs(actualLocation.lng - currentLocation.lng),
+        distanceBetweenGeneratedAndActual: calculateDistance(
+          currentLocation.lat,
+          currentLocation.lng,
+          actualLocation.lat,
+          actualLocation.lng
+        )
+      }
     });
 
     setDistance(calculatedDistance);
-    setRoundScore(calculatedScore);
-    setScore((prev) => prev + calculatedScore);
     setTotalDistance((prev) => prev + calculatedDistance);
     setGameState("result");
   };
@@ -248,7 +241,6 @@ const App = () => {
     try {
       const result = await highScoresService.addHighScore(
         playerName,
-        score,
         totalDistance,
         3
       );
@@ -269,57 +261,50 @@ const App = () => {
   };
 
   const handleNewGame = () => {
-    setScore(0);
     setRound(1);
     setTotalDistance(0);
     setUsedLocations([]);
     setGameComplete(false);
     setShowNameEntry(false);
     setShowHighScores(false);
-    setGameState("loading");
+    setGameState("welcome");
     setMapsLoaded(false);
     setTimeLeft(30);
     setTimerActive(false);
+  };
 
-    setTimeout(() => {
-      if (window.google && window.google.maps) {
-        setMapsLoaded(true);
-        startNewRound();
-      } else {
-        console.error("Google Maps not ready for new game");
-        setTimeout(() => {
-          if (window.google && window.google.maps) {
-            setMapsLoaded(true);
-            startNewRound();
-          } else {
-            console.error("Google Maps still not ready, starting anyway");
-            setMapsLoaded(true);
-            startNewRound();
-          }
-        }, 1000);
-      }
-    }, 100);
+  const handleWelcomeStart = () => {
+    if (!apiKey) {
+      setGameState("setup");
+      return;
+    }
+
+    setGameState("loading");
+    setMapsLoaded(false);
+    loadGoogleMaps();
   };
 
   if (gameComplete && !showNameEntry) {
     return (
-      <div className="min-h-screen bg-red-500 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4 text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+      <div className="app__game-complete">
+        <div className="app__game-complete-container">
+          <h1 className="app__game-complete-title">
             Spel Afgelopen!
           </h1>
-          <p className="text-xl text-gray-600 mb-2">Eindscore: {score}</p>
-          <p className="text-lg text-gray-600 mb-6">
+          <p className="app__game-complete-distance">
             Totale Afstand: {Math.round(totalDistance)} m
           </p>
-          <div className="space-y-3">
+          <div className="app__game-complete-buttons">
             <button
               onClick={handleNewGame}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+              className="app__game-complete-button"
             >
-              Opnieuw Spelen
+              Nog een keer spelen
             </button>
           </div>
+        </div>
+        <div className="app__game-complete-leaderboard">
+          <HighScoresDisplay />
         </div>
       </div>
     );
@@ -327,13 +312,13 @@ const App = () => {
 
   if (gameState === "loading") {
     return (
-      <div className="min-h-screen  flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+      <div className="app__loading">
+        <div className="app__loading-container">
+          <div className="app__loading-spinner"></div>
+          <h2 className="app__loading-title">
             Google Maps laden...
           </h2>
-          <p className="text-gray-600">
+          <p className="app__loading-text">
             Even wachten terwijl we het spel initialiseren.
           </p>
         </div>
@@ -345,29 +330,25 @@ const App = () => {
   // Add error boundary for unexpected states
   if (gameState === "loading" && !apiKey) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4 text-center">
-          <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
-                  Configuration Error
-                </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>App is in loading state but no API key is available.</p>
-                  <p className="mt-1">This indicates a configuration issue.</p>
-                </div>
+      <div className="app__error">
+        <div className="app__error-container">
+          <div className="app__error-alert">
+            <svg className="app__error-icon" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            <div className="app__error-content">
+              <h3 className="app__error-content-title">
+                Configuration Error
+              </h3>
+              <div className="app__error-content-description">
+                <p>App is in loading state but no API key is available.</p>
+                <p>This indicates a configuration issue.</p>
               </div>
             </div>
           </div>
           <button
             onClick={() => setGameState("setup")}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+            className="app__error-button"
           >
             Configure API Key
           </button>
@@ -377,20 +358,48 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen ">
+    <div className="app">
+      {gameState === "welcome" && (
+        <WelcomeScreen onStartGame={handleWelcomeStart} />
+      )}
+
       {gameState === "setup" && (
         <SetupModal
           onStartGame={(key) => {
             setApiKey(key);
+            setGameState("loading");
             setMapsLoaded(false);
-            setGameState("guessing");
+
+            // Create a temporary function to load maps with the new key
+            const loadMapsWithNewKey = () => {
+              const existingScripts = document.querySelectorAll(
+                `script[src*="maps.googleapis.com"]`
+              );
+              existingScripts.forEach((script) => script.remove());
+              const script = document.createElement("script");
+              script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&v=weekly&libraries=geometry`;
+              script.async = true;
+              script.defer = true;
+
+              script.onload = () => {
+                setTimeout(() => {
+                  if (window.google && window.google.maps) {
+                    setMapsLoaded(true);
+                    startNewRound();
+                  }
+                }, 500);
+              };
+
+              document.head.appendChild(script);
+            };
+
+            loadMapsWithNewKey();
           }}
         />
       )}
 
       <NameEntry
         isVisible={showNameEntry}
-        score={score}
         totalDistance={totalDistance}
         onSubmit={handleNameSubmit}
         onSkip={() => {
@@ -404,11 +413,11 @@ const App = () => {
         onClose={() => setShowHighScores(false)}
       />
 
-      {gameState !== "setup" && (
+      {gameState !== "setup" && gameState !== "welcome" && (
         <>
           {/* Desktop Layout */}
-          <div className="hidden md:flex h-screen h-full">
-            <div className="flex-1 p-2 pace-y-4 h-full ">
+          <div className="app__desktop">
+            <div className="app__desktop-main">
               {mapsLoaded && currentLocation && (
                 <>
                   <StreetView
@@ -430,24 +439,15 @@ const App = () => {
               )}
             </div>
 
-            <div className="w-64 p-2 flex flex-col space-y-4 h-full justify-between">
-              <div className="p-4">
-                <img
-                  src={logoLeiden}
-                  alt="Leiden Logo"
-                  className="w-full rounded-lg "
-                />
-              </div>
-
+            <div className="app__desktop-sidebar">
+  
               <HighScoresDisplay
                 onShowFullHighScores={() => setShowHighScores(true)}
               />
               <GameControls
                 gameState={gameState}
-                score={score}
                 round={round}
                 distance={distance}
-                roundScore={roundScore}
                 totalDistance={totalDistance}
                 timeLeft={timeLeft}
                 onGuess={handleGuess}
@@ -460,26 +460,12 @@ const App = () => {
           </div>
 
           {/* Mobile Layout */}
-          <div className="md:hidden flex flex-col overflow-hidden" style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
-            {/* Fixed Header - Logo and Leaderboard on top of Street View */}
-            <div className="fixed top-0 left-0 right-0 flex justify-between items-center px-2 py-1 z-20">
-              <div className="bg-white rounded-lg px-3 py-1 shadow-lg">
-                <img
-                  src={logoLeiden}
-                  alt="Leiden Logo"
-                  className="w-14 h-10 rounded-lg object-contain"
-                />
-              </div>
-              <button
-                onClick={() => setShowHighScores(true)}
-                className="text-white px-3 py-1 rounded-lg text-sm font-medium shadow-lg backdrop-blur-sm bg-opacity-90"
-                style={{ backgroundColor: '#D62410' }}
-              >
-                Leaderboard
-              </button>
+          <div className="app__mobile">
+            {/* Fixed Header - Logo on top of Street View */}
+            <div className="app__mobile-header">
             </div>
 
-            <div style={{ height: 'calc(var(--vh, 1vh) * 40)' }}>
+            <div className="app__mobile-street-view">
               {mapsLoaded && currentLocation && (
                 <StreetView
                   currentLocation={currentLocation}
@@ -493,7 +479,7 @@ const App = () => {
             </div>
 
             {/* Map - 40% height, never changes */}
-            <div style={{ height: 'calc(var(--vh, 1vh) * 40)' }}>
+            <div className="app__mobile-map">
               {mapsLoaded && currentLocation && (
                 <GuessMap
                   gameState={gameState}
@@ -506,13 +492,11 @@ const App = () => {
             </div>
 
             {/* Bottom Controls - Variable height, starts at ~20%, grows when round ends */}
-            <div className="flex-1 bg-white shadow-lg border-t border-gray-200 flex flex-col justify-center">
+            <div className="app__mobile-controls">
               <GameControls
                 gameState={gameState}
-                score={score}
                 round={round}
                 distance={distance}
-                roundScore={roundScore}
                 totalDistance={totalDistance}
                 timeLeft={timeLeft}
                 onGuess={handleGuess}

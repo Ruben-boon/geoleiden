@@ -117,16 +117,15 @@ class HighScoresService {
         }
     }
 
-    async addHighScore(playerName, score, totalDistance, rounds = 3) {
+    async addHighScore(playerName, totalDistance, rounds = 3) {
         try {
             if (!(await this.waitForFirebase())) {
                 console.warn('Firebase not ready, saving to localStorage');
-                return this.addHighScoreToStorage(playerName, score, totalDistance, rounds);
+                return this.addHighScoreToStorage(playerName, totalDistance, rounds);
             }
 
             const newScore = {
                 playerName: playerName.trim(),
-                score: score,
                 totalDistance: totalDistance,
                 date: firebase.firestore.Timestamp.now(),
                 rounds: rounds
@@ -150,18 +149,17 @@ class HighScoresService {
             };
         } catch (error) {
             console.error('Error adding high score to Firebase:', error);
-            return this.addHighScoreToStorage(playerName, score, totalDistance, rounds);
+            return this.addHighScoreToStorage(playerName, totalDistance, rounds);
         }
     }
 
-    addHighScoreToStorage(playerName, score, totalDistance, rounds) {
+    addHighScoreToStorage(playerName, totalDistance, rounds) {
         try {
             let highScores = this.loadHighScoresFromStorage();
 
             const newScore = {
                 id: 'score_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 playerName: playerName.trim(),
-                score: score,
                 totalDistance: totalDistance,
                 date: new Date().toISOString(),
                 rounds: rounds
@@ -217,6 +215,65 @@ class HighScoresService {
         } catch (error) {
             console.error('Error getting formatted high scores:', error);
             return [];
+        }
+    }
+
+    async checkAndUpdateScore(playerName, totalDistance, rounds = 3) {
+        try {
+            const highScores = await this.loadHighScores();
+            const existingScore = highScores.find(entry => 
+                entry.playerName.toLowerCase() === playerName.toLowerCase()
+            );
+
+            if (existingScore) {
+                // Check if new distance is better (lower)
+                if (totalDistance < existingScore.totalDistance) {
+                    console.log(`Updating existing distance for ${playerName}: ${existingScore.totalDistance}m -> ${totalDistance}m`);
+                    
+                    if (await this.waitForFirebase()) {
+                        // Update in Firebase
+                        const scoreToUpdate = highScores.find(entry => entry.id === existingScore.id);
+                        if (scoreToUpdate) {
+                            await this.db.collection(this.collectionName).doc(scoreToUpdate.id).update({
+                                totalDistance: totalDistance,
+                                date: firebase.firestore.Timestamp.now(),
+                                rounds: rounds
+                            });
+                        }
+                    } else {
+                        // Update in localStorage
+                        const updatedScores = highScores.map(entry => 
+                            entry.id === existingScore.id 
+                                ? { ...entry, totalDistance, date: new Date().toISOString(), rounds }
+                                : entry
+                        );
+                        this.saveHighScoresToStorage(updatedScores);
+                    }
+
+                    return {
+                        success: true,
+                        isUpdate: true,
+                        oldDistance: existingScore.totalDistance,
+                        newDistance: totalDistance,
+                        improvement: existingScore.totalDistance - totalDistance
+                    };
+                } else {
+                    console.log(`Existing distance for ${playerName} is better: ${existingScore.totalDistance}m vs ${totalDistance}m`);
+                    return {
+                        success: false,
+                        isUpdate: false,
+                        reason: 'existing_better',
+                        existingDistance: existingScore.totalDistance,
+                        newDistance: totalDistance
+                    };
+                }
+            } else {
+                // No existing score, add new one
+                return await this.addHighScore(playerName, totalDistance, rounds);
+            }
+        } catch (error) {
+            console.error('Error checking and updating distance:', error);
+            return { success: false, error: error.message };
         }
     }
 }

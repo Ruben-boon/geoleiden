@@ -1,0 +1,330 @@
+@use '../styles/variables' as vars;
+@use '../styles/mixins' as mixins;
+
+.name-entry {
+  @include mixins.modal-overlay;
+  background-image: url('../../public/poort.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  &__container {
+    background: rgba(255, 255, 255, 1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    max-width: 32rem;
+    width: 100%;
+    margin: 0 1rem;
+    text-align: center;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      border-radius: 20px;
+      pointer-events: none;
+    }
+  }
+
+
+
+  &__distance-container {
+    text-align: center;
+    margin-bottom: vars.$spacing-6;
+
+    &-distance {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #ff0c01;
+      margin: 0;
+    }
+  }
+
+  &__feedback {
+    margin-bottom: vars.$spacing-4;
+    padding: vars.$spacing-4;
+    border-radius: vars.$rounded-lg;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    &--success {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    &--error {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    &-content {
+      display: flex;
+      align-items: flex-start;
+      gap: vars.$spacing-3;
+    }
+
+    &-icon {
+      font-size: vars.$text-xl;
+      flex-shrink: 0;
+    }
+
+    &-text {
+      flex: 1;
+
+      strong {
+        display: block;
+        font-size: vars.$text-base;
+        font-weight: 600;
+        margin-bottom: vars.$spacing-1;
+        color: vars.$gray-800;
+      }
+
+      p {
+        margin: 0;
+        font-size: vars.$text-sm;
+        color: vars.$gray-600;
+        line-height: 1.4;
+      }
+    }
+  }
+
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: vars.$spacing-4;
+  }
+
+  &__input-group {
+    display: flex;
+    flex-direction: column;
+
+    &-label {
+      font-size: vars.$text-sm;
+      font-weight: 500;
+      color: vars.$gray-700;
+      margin-bottom: vars.$spacing-2;
+    }
+
+    &-input {
+      @include mixins.form-input;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(209, 213, 219, 0.6);
+
+      &::placeholder {
+        color: vars.$gray-400;
+      }
+
+      &:focus {
+        border-color: vars.$blue-primary;
+        box-shadow: 0 0 0 3px rgba(vars.$blue-primary, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+      }
+    }
+  }
+
+  &__button-group {
+    display: flex;
+    gap: vars.$spacing-3;
+
+    &-submit {
+      flex: 1;
+      background-color: #ff0c01;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(255, 12, 1, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(255, 12, 1, 0.4);
+
+        &::before {
+          left: 100%;
+        }
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+
+      &:disabled {
+        background: vars.$gray-300;
+        color: vars.$gray-500;
+        box-shadow: none;
+        transform: none;
+
+        &:hover {
+          transform: none;
+          box-shadow: none;
+        }
+
+        &::before {
+          display: none;
+        }
+      }
+    }
+
+    &-skip {
+      flex: 1;
+      background-color: #6b7280;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(107, 114, 128, 0.4);
+
+        &::before {
+          left: 100%;
+        }
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+}
+
+// Mobile responsive
+@include mixins.mobile {
+  .name-entry {
+    padding: 0.5rem;
+
+    &__container {
+      padding: 1.5rem;
+      margin: 0 0.5rem;
+    }
+
+    &__title {
+      font-size: vars.$text-xl;
+      margin-bottom: vars.$spacing-3;
+    }
+
+
+    &__distance-container {
+      &-distance {
+        font-size: 2rem;
+        color: #ff0c01;
+      }
+    }
+
+
+    &__feedback {
+      padding: vars.$spacing-3;
+      margin-bottom: vars.$spacing-3;
+
+      &-content {
+        gap: vars.$spacing-2;
+      }
+
+      &-icon {
+        font-size: vars.$text-lg;
+      }
+
+      &-text {
+        strong {
+          font-size: vars.$text-sm;
+        }
+
+        p {
+          font-size: vars.$text-xs;
+        }
+      }
+    }
+
+    &__form {
+      gap: vars.$spacing-3;
+    }
+
+    &__input-group {
+      &-input {
+        font-size: vars.$text-base; /* Prevent zoom on iOS */
+        padding: vars.$spacing-3;
+        min-height: 44px; /* Touch-friendly minimum height */
+      }
+    }
+
+    &__button-group {
+      gap: vars.$spacing-2;
+
+      &-submit,
+      &-skip {
+        font-size: vars.$text-sm;
+        padding: vars.$spacing-3 vars.$spacing-4;
+        min-height: 44px; /* Touch-friendly minimum height */
+      }
+    }
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
