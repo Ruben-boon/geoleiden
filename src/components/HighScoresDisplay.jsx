@@ -13,8 +13,8 @@ const HighScoresDisplay = ({ onShowFullHighScores }) => {
     const loadHighScores = async () => {
         setLoading(true);
         try {
-            const scores = await highScoresService.getFormattedHighScores();
-            setHighScores(scores.slice(0, 20));
+            const scores = await highScoresService.getFormattedHighScores(40);
+            setHighScores(scores);
         } catch (error) {
             console.error('Error loading high scores:', error);
         } finally {

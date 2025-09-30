@@ -202,11 +202,15 @@ class HighScoresService {
         }
     }
 
-    async getFormattedHighScores() {
+    async getFormattedHighScores(limit = null) {
         try {
-            const highScores = await this.loadHighScores();
+            // Use loadAllHighScores if limit is specified, otherwise use regular loadHighScores
+            const highScores = limit ? await this.loadAllHighScores() : await this.loadHighScores();
+            
+            // Apply limit if specified
+            const limitedScores = limit ? highScores.slice(0, limit) : highScores;
 
-            return highScores.map((score, index) => ({
+            return limitedScores.map((score, index) => ({
                 ...score,
                 rank: index + 1,
                 formattedDate: new Date(score.date).toLocaleDateString(),

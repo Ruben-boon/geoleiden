@@ -8,7 +8,7 @@
   &__game-complete {
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     padding: 1rem;
     background-image: url('../public/poort.webp');
@@ -16,7 +16,7 @@
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
-
+    margin-bottom: 4rem;
     &-container {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
@@ -31,7 +31,7 @@
       text-align: center;
       position: relative;
       z-index: 2;
-
+      margin-bottom: 3rem!important;
       &::before {
         content: '';
         position: absolute;
@@ -122,14 +122,15 @@
       right: 0;
       bottom: 0;
       z-index: 1;
-      opacity: 0.3;
-      overflow: hidden;
+      overflow: auto;
       border-radius: 20px;
 
       .high-scores-display {
         transform: scale(0.8);
-        filter: blur(2px);
-        pointer-events: none;
+        pointer-events: auto;
+        max-height: 60vh;
+        height: 100vh;
+        overflow: hidden;
       }
     }
   }
