@@ -238,26 +238,11 @@ const App = () => {
   };
 
   const handleNameSubmit = async (playerName) => {
-    try {
-      const result = await highScoresService.addHighScore(
-        playerName,
-        totalDistance,
-        3
-      );
-      if (result.success) {
-        setShowNameEntry(false);
-        setGameComplete(true);
-        setShowHighScores(true);
-      } else {
-        console.error("Failed to save high score:", result.error);
-        setShowNameEntry(false);
-        setGameComplete(true);
-      }
-    } catch (error) {
-      console.error("Error saving high score:", error);
-      setShowNameEntry(false);
-      setGameComplete(true);
-    }
+    // The NameEntry component already handles score saving via checkAndUpdateScore
+    // So we just need to proceed with the game flow
+    setShowNameEntry(false);
+    setGameComplete(true);
+    setShowHighScores(true);
   };
 
   const handleNewGame = () => {

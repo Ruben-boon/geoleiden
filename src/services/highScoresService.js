@@ -276,6 +276,136 @@ class HighScoresService {
             return { success: false, error: error.message };
         }
     }
+
+    async loadAllHighScores() {
+        try {
+            if (!(await this.waitForFirebase())) {
+                console.warn('Firebase not ready, falling back to localStorage');
+                return this.loadHighScoresFromStorage();
+            }
+
+            // Load ALL scores (not just top 10) for cleanup purposes
+            const snapshot = await this.db.collection(this.collectionName)
+                .orderBy('totalDistance', 'asc')
+                .get();
+
+            const highScores = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                highScores.push({
+                    id: doc.id,
+                    ...data
+                });
+            });
+
+            return highScores;
+        } catch (error) {
+            console.error('Error loading all high scores from Firebase:', error);
+            return this.loadHighScoresFromStorage();
+        }
+    }
+
+    async cleanupDuplicateScores() {
+        try {
+            console.log('Starting database cleanup to remove duplicate names...');
+            
+            const allScores = await this.loadAllHighScores();
+            console.log(`Found ${allScores.length} total scores`);
+            
+            // Group scores by player name (case-insensitive)
+            const scoresByPlayer = {};
+            allScores.forEach(score => {
+                const playerName = score.playerName.toLowerCase();
+                if (!scoresByPlayer[playerName]) {
+                    scoresByPlayer[playerName] = [];
+                }
+                scoresByPlayer[playerName].push(score);
+            });
+            
+            // Find duplicates and determine which to keep/remove
+            const duplicatesToRemove = [];
+            const playersToKeep = {};
+            
+            Object.keys(scoresByPlayer).forEach(playerName => {
+                const playerScores = scoresByPlayer[playerName];
+                if (playerScores.length > 1) {
+                    console.log(`Found ${playerScores.length} entries for player: ${playerName}`);
+                    
+                    // Sort by distance (ascending - lower is better)
+                    playerScores.sort((a, b) => a.totalDistance - b.totalDistance);
+                    
+                    // Keep the best score (first one after sorting)
+                    const bestScore = playerScores[0];
+                    playersToKeep[playerName] = bestScore;
+                    
+                    // Mark all others for removal
+                    playerScores.slice(1).forEach(score => {
+                        duplicatesToRemove.push(score);
+                    });
+                    
+                    console.log(`Keeping best score for ${playerName}: ${bestScore.totalDistance}m (ID: ${bestScore.id})`);
+                    console.log(`Removing ${playerScores.length - 1} duplicate(s) for ${playerName}`);
+                } else {
+                    // Single entry, keep it
+                    playersToKeep[playerName] = playerScores[0];
+                }
+            });
+            
+            console.log(`Found ${duplicatesToRemove.length} duplicate scores to remove`);
+            
+            if (duplicatesToRemove.length === 0) {
+                console.log('No duplicates found. Database is clean!');
+                return {
+                    success: true,
+                    message: 'No duplicates found',
+                    removedCount: 0
+                };
+            }
+            
+            // Remove duplicates from database
+            let removedCount = 0;
+            
+            if (await this.waitForFirebase()) {
+                // Remove from Firebase
+                console.log('Removing duplicates from Firebase...');
+                for (const score of duplicatesToRemove) {
+                    try {
+                        await this.db.collection(this.collectionName).doc(score.id).delete();
+                        removedCount++;
+                        console.log(`Removed duplicate: ${score.playerName} (${score.totalDistance}m) - ID: ${score.id}`);
+                    } catch (error) {
+                        console.error(`Error removing score ${score.id}:`, error);
+                    }
+                }
+            } else {
+                // Remove from localStorage
+                console.log('Removing duplicates from localStorage...');
+                const cleanedScores = Object.values(playersToKeep);
+                this.saveHighScoresToStorage(cleanedScores);
+                removedCount = duplicatesToRemove.length;
+            }
+            
+            console.log(`Cleanup completed! Removed ${removedCount} duplicate scores.`);
+            
+            return {
+                success: true,
+                message: `Removed ${removedCount} duplicate scores`,
+                removedCount: removedCount,
+                duplicatesRemoved: duplicatesToRemove.map(score => ({
+                    playerName: score.playerName,
+                    distance: score.totalDistance,
+                    id: score.id
+                }))
+            };
+            
+        } catch (error) {
+            console.error('Error during database cleanup:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
 }
 
 export default new HighScoresService();
