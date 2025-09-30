@@ -11,7 +11,6 @@ const HighScores = ({ isVisible, onClose }) => {
     const [highScores, setHighScores] = useState([]);
     const [loading, setLoading] = useState(false);
     const [maxItems, setMaxItems] = useState(5);
-    const [cleanupStatus, setCleanupStatus] = useState(null);
 
     useEffect(() => {
         if (isVisible) {
@@ -42,33 +41,6 @@ const HighScores = ({ isVisible, onClose }) => {
         }
     };
 
-    const handleCleanup = async () => {
-        setCleanupStatus({ loading: true, message: 'Cleaning up duplicates...' });
-        try {
-            const result = await highScoresService.cleanupDuplicateScores();
-            if (result.success) {
-                setCleanupStatus({ 
-                    success: true, 
-                    message: result.message,
-                    removedCount: result.removedCount 
-                });
-                // Reload scores after cleanup
-                await loadHighScores();
-            } else {
-                setCleanupStatus({ 
-                    success: false, 
-                    message: result.error || 'Cleanup failed' 
-                });
-            }
-        } catch (error) {
-            console.error('Error during cleanup:', error);
-            setCleanupStatus({ 
-                success: false, 
-                message: 'Cleanup failed: ' + error.message 
-            });
-        }
-    };
-
     if (!isVisible) return null;
 
     return (
@@ -78,35 +50,15 @@ const HighScores = ({ isVisible, onClose }) => {
                 <div className="high-scores__desktop-modal">
                     <div className="high-scores__desktop-header">
                         <h2 className="high-scores__desktop-title">🏆 Top Leidse Glibbers</h2>
-                        <div className="high-scores__desktop-actions">
-                            <button
-                                onClick={handleCleanup}
-                                className="high-scores__cleanup-btn"
-                                disabled={cleanupStatus?.loading}
-                            >
-                                {cleanupStatus?.loading ? 'Cleaning...' : '🧹 Clean Duplicates'}
-                            </button>
-                            <button
-                                onClick={onClose}
-                                className="high-scores__desktop-close"
-                            >
-                                ×
-                            </button>
-                        </div>
+                        <button
+                            onClick={onClose}
+                            className="high-scores__desktop-close"
+                        >
+                            ×
+                        </button>
                     </div>
 
                     <div className="high-scores__desktop-content">
-                        {cleanupStatus && (
-                            <div className={`high-scores__cleanup-status ${
-                                cleanupStatus.success ? 'high-scores__cleanup-status--success' : 
-                                cleanupStatus.loading ? 'high-scores__cleanup-status--loading' : 
-                                'high-scores__cleanup-status--error'
-                            }`}>
-                                {cleanupStatus.loading ? '⏳' : cleanupStatus.success ? '✅' : '❌'} 
-                                {cleanupStatus.message}
-                                {cleanupStatus.removedCount > 0 && ` (${cleanupStatus.removedCount} removed)`}
-                            </div>
-                        )}
                         {loading ? (
                             <div className="high-scores__loading">
                                 <div className="high-scores__loading-spinner"></div>
@@ -161,35 +113,15 @@ const HighScores = ({ isVisible, onClose }) => {
                 <div className="high-scores__mobile-modal">
                     <div className="high-scores__mobile-header">
                         <h2 className="high-scores__mobile-title">🏆 Top Leidse Glibbers</h2>
-                        <div className="high-scores__mobile-actions">
-                            <button
-                                onClick={handleCleanup}
-                                className="high-scores__cleanup-btn high-scores__cleanup-btn--mobile"
-                                disabled={cleanupStatus?.loading}
-                            >
-                                {cleanupStatus?.loading ? 'Cleaning...' : '🧹'}
-                            </button>
-                            <button
-                                onClick={onClose}
-                                className="high-scores__mobile-close"
-                            >
-                                ✕
-                            </button>
-                        </div>
+                        <button
+                            onClick={onClose}
+                            className="high-scores__mobile-close"
+                        >
+                            ✕
+                        </button>
                     </div>
 
                     <div className="high-scores__mobile-content">
-                        {cleanupStatus && (
-                            <div className={`high-scores__cleanup-status high-scores__cleanup-status--mobile ${
-                                cleanupStatus.success ? 'high-scores__cleanup-status--success' : 
-                                cleanupStatus.loading ? 'high-scores__cleanup-status--loading' : 
-                                'high-scores__cleanup-status--error'
-                            }`}>
-                                {cleanupStatus.loading ? '⏳' : cleanupStatus.success ? '✅' : '❌'} 
-                                {cleanupStatus.message}
-                                {cleanupStatus.removedCount > 0 && ` (${cleanupStatus.removedCount} removed)`}
-                            </div>
-                        )}
                         {loading ? (
                             <div className="high-scores__loading high-scores__loading--mobile">
                                 <div className="high-scores__loading-spinner"></div>
