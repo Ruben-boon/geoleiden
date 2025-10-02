@@ -12,6 +12,7 @@ import HighScoresDisplay from "./components/HighScoresDisplay";
 import GameControls from "./components/GameControls";
 import SetupModal from "./components/SetupModal";
 import WelcomeScreen from "./components/WelcomeScreen";
+import DailyLimitModal from "./components/DailyLimitModal";
 import "./App.scss";
 
 const App = () => {
@@ -344,8 +345,17 @@ const App = () => {
 
   return (
     <div className="app">
-      {gameState === "welcome" && (
+      {/* Original Welcome Screen - commented out */}
+      {/* {gameState === "welcome" && (
         <WelcomeScreen onStartGame={handleWelcomeStart} />
+      )} */}
+      
+      {/* New Daily Limit Modal */}
+      {gameState === "welcome" && (
+        <DailyLimitModal onClose={() => {
+          // For now, just show the setup modal when they try to close
+          setGameState("setup");
+        }} />
       )}
 
       {gameState === "setup" && (
