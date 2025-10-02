@@ -19,7 +19,10 @@ const DailyLimitModal = ({ onClose }) => {
         {/* Message */}
         <div className="daily-limit-modal__message">
           <p className="daily-limit-modal__message-text">
-            Vanwege de hoge vraag en om deze app gratis te houden, is de limiet voor vandaag bereikt. Ik werk hard aan een oplossing om het weer beschikbaar te maken en gratis te houden.
+            Vanwege de hoge vraag is de limiet voor vandaag bereikt. Ik werk hard aan een oplossing om het weer beschikbaar te maken en gratis te houden.
+          </p>
+          <p className="daily-limit-modal__message-text">
+            Sorry voor het ongemak! Probeer het morgen opnieuw.
           </p>
         </div>
 
